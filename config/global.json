@@ -1,0 +1,11 @@
+{
+    "applications": {
+        "ResuText": {
+            "applicationId": "4dd41xGqxXYe3cowlvKR7p8iZX7P7HXjtiUfw0C6", 
+            "masterKey": "bTWvwdPlx1AWDohW4FId6koRkwQ6QBbWzCyFrBIz"
+        }, 
+        "_default": {
+            "link": "ResuText"
+        }
+    }
+}
