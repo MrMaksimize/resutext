@@ -22,8 +22,8 @@ var generateResponse = function(command) {
   var mrmSite = "http://MrMaksimize.com";
   command = command.toLowerCase();
   if (command.indexOf("@") !== -1 && command.indexOf("resume") !== -1) {
-    var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite;
-    var emailMessage = "Hey there! Looks like you wanted to see Maksim's Resume.  And here it is!  Enjoy the read! " + resumeURL + ". Don't forget to check out his personal site as well - " + mrmSite;
+    var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite + " then call him at 1.773.677.7755;";
+    var emailMessage = "Hey there! Looks like you wanted to see Maksim's Resume.  And here it is!  Enjoy the read! " + resumeURL + "\n Don't forget to check out his personal site as well - " + mrmSite + "\n Make sure you give him a call at 1.773.677.7755 or email him - maksim@maksimize.com";
     var emails = findEmailAddresses(command);
     console.log(emails);
     var emailStatusMessage = " I'll also send you an email!";
