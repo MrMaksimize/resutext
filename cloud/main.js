@@ -8,11 +8,17 @@ Twilio.initialize(accountSid, authToken);
 var Mandrill = require('mandrill');
 Mandrill.initialize('MwUpljIiBM9LpoFfk3YQrw');
 
-function findEmailAddresses(StrObj) {
-  var separateEmailsBy = ", ";
+var findEmailAddresses = function(StrObj) {
   var emailsArray = [];
   emailsArray = StrObj.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
   return emailsArray;
+}
+
+var findPhoneNumbers = function(messageStr) {
+  var phoneNumbersArray = [];
+  //phoneNumbersArray = messageStr.match(/(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})/);
+  phoneNumbersArray = messageStr.match(/\+?1?[0-9]{3}[\- ]?[0-9]{3}[\- ]?[0-9]{4}/);
+  return phoneNumbersArray;
 }
 
 var generateResponse = function(command) {
@@ -46,6 +52,19 @@ var generateResponse = function(command) {
       op: "sms",
       message: "Maksim is Awesome.  Check out his resume here: " + resumeURLScribd + " and his personal site here - " + mrmSite,
     }];
+  }
+
+  else if (command.indexOf("send to") != -1) {
+
+    var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite + " then call him at 1.773.677.7755;";
+    var phoneNumbers = findPhoneNumbers(command);
+    if (phoneNumbers.length > 0) {
+      return [{
+        op: "sms",
+        message: textMessage,
+        phoneNumbers: phoneNumbers
+      }];
+    }
   }
   // Fallback
   else {
@@ -117,10 +136,14 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
     console.log(responses[i]);
     // TODO - figure our recursion with response
     if (responses[i].op == 'sms') {
-      try {
-        sendSMS(request.params.To, request.params.From, responses[i].message);
-      } catch (error) {
-        response.error(error.message);
+      phoneNumbers = responses[i].phoneNumbers.length > 0 ? responses[i].phoneNumbers.length : new Array(request.params.From);
+      for (var p in phoneNumbers) {
+
+        try {
+          sendSMS(request.params.To, phoneNumbers[p], responses[i].message);
+        } catch (error) {
+          response.error(error.message);
+        }
       }
     }
     else if (responses[i].op == 'email') {
