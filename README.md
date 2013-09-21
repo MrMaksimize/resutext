@@ -1,12 +1,11 @@
 resutext
 ========
 
-### Basically a super simple SMS based resume sharing tool.
+#### Basically a super simple SMS based resume sharing tool.
 
 You can share your resume to others via SMS or Email, simply by using keywords in SMS messages.
 
-MVP
-===
+### MVP
 
 Use your phone to:
 - Send your resume to someone's phone
@@ -14,13 +13,12 @@ Use your phone to:
 
 Use the website to:
 - Register and with your name, email, phone
--- Parse backend
--- Cloud code dynamic website using Express
+  - Parse backend
+  - Cloud code dynamic website using Express
 - Uploading your resume
--- Hosted on AWS
+  - Hosted on AWS
 
-Next phase:
-===========
+### Next phase:
 
 - Receive a resume on your phone
 - Receive a resume on your email
