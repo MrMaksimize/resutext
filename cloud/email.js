@@ -19,19 +19,18 @@ exports.sendEmail = function(message) {
       subject: message.subject,
       from_email: "no-reply@resutext.com",
       from_name: "ResuText",
-      to: message.to//[
-        //{email: "you@parse.com", name: "Your Name"}
-      //]
+      to: message.to
     },
     async: true
   },{
     success: function(httpResponse) {
       console.log(httpResponse);
-      response.success("Email sent!");
+      response.success("Email success");
     },
     error: function(httpResponse) {
       console.error(httpResponse);
-      response.error("Uh oh, something went wrong");
+      response.error("Email Failed");
     }
   });
+  return;
 }

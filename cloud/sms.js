@@ -1,29 +1,29 @@
 
 // -- Twilio SMS Account -- //
 var Twilio = require('twilio');
-var accountSid = 'AC439fd476eb3ee822125daca41811ed03';
-var authToken = 'e45c87328232b821063880b62b023a0e';
+var accountSid = 'AC5a2be84ac3f138f11d48e040c7de698a';
+var authToken = '7d71bcb8e36444fae06cdc335a16d74a';
 
 Twilio.initialize(accountSid, authToken);
 
 exports.sendSMS = function(fromNum, toNum, bodyText) {
-  console.log('from: ' + fromNum);
-  console.log('to : ' + toNum);
-  console.log('text: ' + bodyText);
+  //console.log('from: ' + fromNum);
+  //console.log('to : ' + toNum);
+  //console.log('text: ' + bodyText);
   Twilio.sendSMS({
     From: fromNum,
     To: toNum,
     Body: bodyText,
   }, {
     success: function(httpResponse) {
-      console.log(httpResponse);
-      console.log('request success');
+      console.log('SMS Success');
     },
     error: function(httpResponse) {
        console.error(httpResponse);
-       throw "Request went awry";
+       throw "SMS Failed";
     }
   });
+  return;
 }
 
 exports.findPhoneNumbers = function(messageStr) {

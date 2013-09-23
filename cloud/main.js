@@ -5,33 +5,51 @@ var INVALID_REQUEST_MSG = "Ok... I'll be honest here, I dont know what that mean
 var INVALID_EMAIL_MSG = "Email doesn't look too good, maybe you should try it again."
 var INVALID_PHONE_MSG = "Phone number doesn't look too good, maybe you should try it again."
 
+var resumeURL = "http://bit.ly/MaksimRes";
+var resumeURLScribd = "http://bit.ly/MaksimRes1";
+var mrmSite = "http://MrMaksimize.com";
+
+var EMAIL_RESUME = "Hey there! Looks like you wanted to see Maksim's Resume.  And here it is!  Enjoy the read! " + resumeURL + "\n Don't forget to check out his personal site as well - " + mrmSite + "\n Make sure you give him a call at 1.773.677.7755 or email him - maksim@maksimize.com";
+
 var sms_handler = require('cloud/sms.js');
 var email_handler = require('cloud/email.js');
+
+var twilio_number = "+13128001571";
 
 
 // -- Receiving SMSes -- //
 
 Parse.Cloud.define("incomingSMS", function(request, response) {
-  console.log('log');
+  console.log('-');
   console.log(request.params);
-  // Get Command
-  var command = request.params.Body;
-  var responses = generateResponse(command);
-  console.log(responses);
-  for (var i in responses) {
-    console.log(responses[i]);
-    // TODO - figure our recursion with response
-    if (responses[i].op == 'sms') {
-      phoneNumbers = responses[i].phoneNumbers.length > 0 ? responses[i].phoneNumbers.length : new Array(request.params.From);
-      for (var p in phoneNumbers) {
 
+  var sender = request.params.From;
+  var command = request.params.Body.toLowerCase();
+  var responses = generateResponse(command);
+
+  for (var i in responses) {
+
+  	// Sending an sms to new numbers
+    if (responses[i].op == 'sms' && responses[i].phoneNumbers) {
+      for (var p in responses[i].phoneNumbers) {
         try {
-        	sms_handler.sendSMS(request.params.To, phoneNumbers[p], responses[i].message);
+        	sms_handler.sendSMS(sender, phoneNumbers[p], responses[i].message);
         } catch (error) {
           response.error(error.message);
         }
       }
     }
+
+    // Responding back to the user via sms
+    else if (responses[i].op == 'sms') {
+		try {
+			sms_handler.sendSMS(twilio_number, sender, responses[i].message);
+		} catch (error) {
+		  response.error(error.message);
+		}
+    }
+
+    // Sending emails
     else if (responses[i].op == 'email') {
       if (responses[i].emails.length != 0) {
         var toArray = [];
@@ -57,59 +75,65 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 // -- Response Generator -- //
 
 var generateResponse = function(command) {
-  var originalCommand = command;
-  var resumeURL = "http://bit.ly/MaksimRes";
-  var resumeURLScribd = "http://bit.ly/MaksimRes1";
-  var mrmSite = "http://MrMaksimize.com";
-  command = command.toLowerCase();
-  if (command.indexOf("@") !== -1 && command.indexOf("resume") !== -1) {
-    var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite + " then call him at 1.773.677.7755;";
-    var emailMessage = "Hey there! Looks like you wanted to see Maksim's Resume.  And here it is!  Enjoy the read! " + resumeURL + "\n Don't forget to check out his personal site as well - " + mrmSite + "\n Make sure you give him a call at 1.773.677.7755 or email him - maksim@maksimize.com";
+  var originalCommand = command.toLowerCase();
+
+  if (command.search("@") > -1 && command.search("resume") > -1) {
+    var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite;
     var emails = email_handler.findEmailAddresses(command);
     console.log(emails);
     var emailStatusMessage = " I'll also send you an email!";
-    if (emails.length == 0) {
-      emailStatusMessage = " However, I couldn't figure out your email.  Usually an email has an @ in it.";
-    }
+
+    if (!emails || emails.length < 1) emailStatusMessage = INVALID_EMAIL_MSG;
+
+    var phoneNumbers = sms_handler.findPhoneNumbers(command);
     return [{
       op: "sms",
       message: textMessage + emailStatusMessage,
+      phoneNumbers: phoneNumbers
     },
     {
       op: "email",
-      message: emailMessage,
+      message: EMAIL_RESUME,
       emails: emails
     }]
   }
 
   else if (command.indexOf("resume") != -1) {
+    var phoneNumbers = sms_handler.findPhoneNumbers(command);
     return [{
       op: "sms",
       message: "Maksim is Awesome.  Check out his resume here: " + resumeURLScribd + " and his personal site here - " + mrmSite,
+      phoneNumbers: phoneNumbers
     }];
   }
 
-  else if (command.indexOf("send to") != -1) {
+  else if (command.search("@") > -1) {
+  	var emails = email_handler.findEmailAddresses(command);
+  	var textMessage = "Resume has been sent to: " + emails;
 
-    var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite + " then call him at 1.773.677.7755;";
-    var phoneNumbers = sms_handler.findPhoneNumbers(command);
-    if (phoneNumbers.length > 0) {
-      return [{
-        op: "sms",
-        message: textMessage,
-        phoneNumbers: phoneNumbers
-      }];
-    }
+	if (!emails || emails.length < 1) textMessage = INVALID_EMAIL_MSG;
+
+	return [
+		{
+			op: "sms",
+			message: textMessage,
+			phoneNumbers: null
+		},
+		{
+			op: "email",
+			message: EMAIL_RESUME,
+			emails: emails
+		}
+	];
   }
+
   // Fallback
   else {
-    var response = "Ok... I'll be honest here.  I dont know what '" + originalCommand + "' Means.";
-    var insult = "Please learn to use your keyboard.  Thanks!";
-
-    response = response + " " + insult;
+    var phoneNumbers = sms_handler.findPhoneNumbers(command);
     return [{
       op: "sms",
-      message: response
+      message: INVALID_REQUEST_MSG,
+      phoneNumbers: phoneNumbers
     }];
   }
 }
