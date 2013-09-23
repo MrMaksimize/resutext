@@ -1,29 +1,15 @@
 
-// -- Twilio SMS Account -- //
-var Twilio = require('twilio');
-var accountSid = 'AC439fd476eb3ee822125daca41811ed03';
-var authToken = 'e45c87328232b821063880b62b023a0e';
-
-Twilio.initialize(accountSid, authToken);
-
-// -- Mandril Email Account -- //
-var Mandrill = require('mandrill');
-Mandrill.initialize('MwUpljIiBM9LpoFfk3YQrw');
-
 // -- Global Vars -- //
+
 var INVALID_REQUEST_MSG = "Ok... I'll be honest here, I dont know what that means ):"
 var INVALID_EMAIL_MSG = "Email doesn't look too good, maybe you should try it again."
 var INVALID_PHONE_MSG = "Phone number doesn't look too good, maybe you should try it again."
 
+var sms_handler = require('cloud/sms.js');
+var email_handler = require('cloud/email.js');
 
-// -- SMSing -- //
 
-var findPhoneNumbers = function(messageStr) {
-  var phoneNumbersArray = [];
-  //phoneNumbersArray = messageStr.match(/(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})/);
-  phoneNumbersArray = messageStr.match(/\+?1?[0-9]{3}[\- ]?[0-9]{3}[\- ]?[0-9]{4}/);
-  return phoneNumbersArray;
-}
+// -- Receiving SMSes -- //
 
 Parse.Cloud.define("incomingSMS", function(request, response) {
   console.log('log');
@@ -40,7 +26,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
       for (var p in phoneNumbers) {
 
         try {
-          sendSMS(request.params.To, phoneNumbers[p], responses[i].message);
+        	sms_handler.sendSMS(request.params.To, phoneNumbers[p], responses[i].message);
         } catch (error) {
           response.error(error.message);
         }
@@ -54,7 +40,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
         }
         console.log(toArray);
         try {
-          sendEmail({
+          email_handler.sendEmail({
             subject: "Maksim's Resume! Thanks!",
             text: responses[i].message,
             to: toArray,
@@ -66,61 +52,6 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
     }
   }
 });
-
-var sendSMS = function(fromNum, toNum, bodyText) {
-  console.log('from: ' + fromNum);
-  console.log('to : ' + toNum);
-  console.log('text: ' + bodyText);
-  Twilio.sendSMS({
-    From: fromNum,
-    To: toNum,
-    Body: bodyText,
-  }, {
-    success: function(httpResponse) {
-      console.log(httpResponse);
-      console.log('request success');
-    },
-    error: function(httpResponse) {
-       console.error(httpResponse);
-       throw "Request went awry";
-    }
-  });
-}
-
-
-// -- Emailing -- //
-
-var findEmailAddresses = function(StrObj) {
-  var emailsArray = [];
-  emailsArray = StrObj.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
-  return emailsArray;
-}
-
-var sendEmail = function(message) {
-  console.log("Sending Message");
-  console.log(message);
-  Mandrill.sendEmail({
-    message: {
-      text: message.text,
-      subject: message.subject,
-      from_email: "no-reply@resutext.com",
-      from_name: "ResuText",
-      to: message.to//[
-        //{email: "you@parse.com", name: "Your Name"}
-      //]
-    },
-    async: true
-  },{
-    success: function(httpResponse) {
-      console.log(httpResponse);
-      response.success("Email sent!");
-    },
-    error: function(httpResponse) {
-      console.error(httpResponse);
-      response.error("Uh oh, something went wrong");
-    }
-  });
-}
 
 
 // -- Response Generator -- //
@@ -134,7 +65,7 @@ var generateResponse = function(command) {
   if (command.indexOf("@") !== -1 && command.indexOf("resume") !== -1) {
     var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite + " then call him at 1.773.677.7755;";
     var emailMessage = "Hey there! Looks like you wanted to see Maksim's Resume.  And here it is!  Enjoy the read! " + resumeURL + "\n Don't forget to check out his personal site as well - " + mrmSite + "\n Make sure you give him a call at 1.773.677.7755 or email him - maksim@maksimize.com";
-    var emails = findEmailAddresses(command);
+    var emails = email_handler.findEmailAddresses(command);
     console.log(emails);
     var emailStatusMessage = " I'll also send you an email!";
     if (emails.length == 0) {
@@ -161,7 +92,7 @@ var generateResponse = function(command) {
   else if (command.indexOf("send to") != -1) {
 
     var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite + " then call him at 1.773.677.7755;";
-    var phoneNumbers = findPhoneNumbers(command);
+    var phoneNumbers = sms_handler.findPhoneNumbers(command);
     if (phoneNumbers.length > 0) {
       return [{
         op: "sms",
