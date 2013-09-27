@@ -1,26 +1,22 @@
 
 // -- Global Vars -- //
+require('cloud/globals.js');
 
-var INVALID_REQUEST_MSG = "Ok... I'll be honest here, I dont know what that means ):"
-var INVALID_EMAIL_MSG = "Email doesn't look too good, maybe you should try it again."
-var INVALID_PHONE_MSG = "Phone number doesn't look too good, maybe you should try it again."
-
-var resumeURL = "http://bit.ly/MaksimRes";
-var resumeURLScribd = "http://bit.ly/MaksimRes1";
-var mrmSite = "http://MrMaksimize.com";
-
-var EMAIL_RESUME = "Hey there! Looks like you wanted to see Maksim's Resume.  And here it is!  Enjoy the read! " + resumeURL + "\n Don't forget to check out his personal site as well - " + mrmSite + "\n Make sure you give him a call at 1.773.677.7755 or email him - maksim@maksimize.com";
-
-var sms_handler = require('cloud/sms.js');
+// -- Experts -- //
+var phone_handler = require('cloud/phone.js');
 var email_handler = require('cloud/email.js');
-
-var twilio_number = "+13128001571";
 
 
 // -- Receiving SMSes -- //
 
 Parse.Cloud.define("incomingSMS", function(request, response) {
-  console.log('-');
+  console.log("-\n");
+  
+  console.log("Response: " + response);
+  phone_handler.receiveSMS(request.params);
+  return;
+  
+  /*
   console.log(request.params);
 
   var sender = request.params.From;
@@ -33,7 +29,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
     if (responses[i].op == 'sms' && responses[i].phoneNumbers) {
       for (var p in responses[i].phoneNumbers) {
         try {
-        	sms_handler.sendSMS(sender, phoneNumbers[p], responses[i].message);
+        	phone_handler.sendSMS(sender, phoneNumbers[p], responses[i].message);
         } catch (error) {
           response.error(error.message);
         }
@@ -43,7 +39,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
     // Responding back to the user via sms
     else if (responses[i].op == 'sms') {
 		try {
-			sms_handler.sendSMS(twilio_number, sender, responses[i].message);
+			phone_handler.sendSMS(twilio_number, sender, responses[i].message);
 		} catch (error) {
 		  response.error(error.message);
 		}
@@ -69,6 +65,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
       }
     }
   }
+  */
 });
 
 
@@ -85,7 +82,7 @@ var generateResponse = function(command) {
 
     if (!emails || emails.length < 1) emailStatusMessage = INVALID_EMAIL_MSG;
 
-    var phoneNumbers = sms_handler.findPhoneNumbers(command);
+    var phoneNumbers = phone_handler.findPhoneNumbers(command);
     return [{
       op: "sms",
       message: textMessage + emailStatusMessage,
@@ -99,7 +96,7 @@ var generateResponse = function(command) {
   }
 
   else if (command.indexOf("resume") != -1) {
-    var phoneNumbers = sms_handler.findPhoneNumbers(command);
+    var phoneNumbers = phone_handler.findPhoneNumbers(command);
     return [{
       op: "sms",
       message: "Maksim is Awesome.  Check out his resume here: " + resumeURLScribd + " and his personal site here - " + mrmSite,
@@ -129,7 +126,7 @@ var generateResponse = function(command) {
 
   // Fallback
   else {
-    var phoneNumbers = sms_handler.findPhoneNumbers(command);
+    var phoneNumbers = phone_handler.findPhoneNumbers(command);
     return [{
       op: "sms",
       message: INVALID_REQUEST_MSG,
