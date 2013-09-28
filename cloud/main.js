@@ -16,7 +16,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
   var sms = phone_handler.receiveSMS(request.params, response);
   if (sms) console.log("Received: " + sms);
 
-  var actions = expert_handler.parseSMS(sms.msg);
+  var actions = expert_handler.parseSMS(sms.msg, sms.from);
   if (actions) console.log("Got " + actions.length + " actions");
   
   var result = performActions(actions);

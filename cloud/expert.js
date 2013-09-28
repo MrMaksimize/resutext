@@ -6,10 +6,24 @@ var global = require('cloud/globals.js');
 var phone_handler = require('cloud/phone.js');
 var email_handler = require('cloud/email.js');
 
-exports.parseSMS = function(smsMsg) {
+/*
+ * Parsing the SMS body
+ * and returning actions
+ * corresponding to the
+ * user input.
+ *
+ * Output array has objects:
+ * {
+ *   type : sms|email,
+ *   object: sms_obj|email_obj
+ * }
+ */
+exports.parseSMS = function(smsMsg, sender) {
   
+  var actions = new Array();
 
   // Testing Dummy //
+  /*
   var sms = phone_handler.makeSMS(global.TWILIO_DATA().number, "+13128602305", "Test SMS");
   var email = email_handler.makeEMAIL("gefthefrench@gmail.com", "gefthefrench@gmail.com", "Test Email", "Test Email body");
 
@@ -23,69 +37,55 @@ exports.parseSMS = function(smsMsg) {
 			object: email
 		}
 	];
+  */
   // Testing Dummy //
 
-  /*
-  var originalCommand = command.toLowerCase();
+  // -- Actual Parsing -- //
+  smsMsg = smsMsg.toLowerCase();
 
-  if (command.search("@") > -1 && command.search("resume") > -1) {
-    var textMessage = "Check out Maksim's resume " + resumeURLScribd + " and his site - " + mrmSite;
-    var emails = email_handler.findEmailAddresses(command);
-    console.log(emails);
-    var emailStatusMessage = " I'll also send you an email!";
+  // Sending Resumes to somone via Email
+  if (smsMsg.search("@") > -1) {
+    var emails = email_handler.findEmailAddresses(smsMsg);
 
-    if (!emails || emails.length < 1) emailStatusMessage = INVALID_EMAIL_MSG;
-
-    var phoneNumbers = phone_handler.findPhoneNumbers(command);
-    return [{
-      op: "sms",
-      message: textMessage + emailStatusMessage,
-      phoneNumbers: phoneNumbers
-    },
-    {
-      op: "email",
-      message: EMAIL_RESUME,
-      emails: emails
-    }]
+    emails.forEach(function(email) {
+      var email = email_handler.makeEMAIL("noreply@resutext.com", email, "The Resu", "Thanks brah, here's the resume!");
+      actions.push( {type: "email", object: email} );
+    });
   }
 
-  else if (command.indexOf("resume") != -1) {
-    var phoneNumbers = phone_handler.findPhoneNumbers(command);
-    return [{
-      op: "sms",
-      message: "Maksim is Awesome.  Check out his resume here: " + resumeURLScribd + " and his personal site here - " + mrmSite,
-      phoneNumbers: phoneNumbers
-    }];
+  // Sending Resumes to somone via SMS
+  if (smsMsg.search("resume") > -1) {
+    var phones = phone_handler.findPhoneNumbers(smsMsg);
+
+    phones.forEach(function(phone) {
+      var sms = phone_handler.makeSMS(global.TWILIO_DATA().number, phone, "Thanks brah, here's the resume!");
+      actions.push( {type: "sms", object: sms} );
+    });
   }
 
-  else if (command.search("@") > -1) {
-  	var emails = email_handler.findEmailAddresses(command);
-  	var textMessage = "Resume has been sent to: " + emails;
-
-	if (!emails || emails.length < 1) textMessage = INVALID_EMAIL_MSG;
-
-	return [
-		{
-			op: "sms",
-			message: textMessage,
-			phoneNumbers: null
-		},
-		{
-			op: "email",
-			message: EMAIL_RESUME,
-			emails: emails
-		}
-	];
-  }
-
-  // Fallback
+  // Nothing to do, must be an error
+  if (actions.length < 1) {
+    var sms = phone_handler.makeSMS(global.TWILIO_DATA().number, sender, "Sry man, I didn't get that...");
+    actions.push( {type: "sms", object: sms} );
+  } 
+  // Otherwise, send a confirmation sms
   else {
-    var phoneNumbers = phone_handler.findPhoneNumbers(command);
-    return [{
-      op: "sms",
-      message: INVALID_REQUEST_MSG,
-      phoneNumbers: phoneNumbers
-    }];
+    var sms = false;
+    var email = false;
+
+    actions.forEach(function(action) {
+      if (action.type == "sms") sms = true;
+      if (action.type == "email") email = true;
+    });
+
+    var sms;
+    if (sms && email) sms = phone_handler.makeSMS(global.TWILIO_DATA().number, sender, "Email & SMS on their way!");
+    else if (sms)     sms = phone_handler.makeSMS(global.TWILIO_DATA().number, sender, "SMS on its way!");
+    else if (email)   sms = phone_handler.makeSMS(global.TWILIO_DATA().number, sender, "Email on its way!");
+
+    actions.push( {type: "sms", object: sms} );
   }
-  */
+
+  // Send it all!
+  return actions;
 }

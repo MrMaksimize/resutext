@@ -53,11 +53,11 @@ EMAIL.prototype.send = function emailSend() {
   },{
     success: function(httpResponse) {
       console.log('Email Sent');
+      response.success('Email sent!');
     },
     error: function(httpResponse) {
-      console.error(httpResponse);
       console.log('Email Failed');
-       throw "Email Failed";
+      response.error('Email Failed');
     }
   });
 }

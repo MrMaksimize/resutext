@@ -32,9 +32,7 @@ exports.receiveSMS = function(sms_data, response) {
   if (sms_data.Body && typeof sms_data.Body != 'undefined') 
     msg = sms_data.Body;
   
-  if (from.length > 0 && msg.length > 0) 
-       response.success();
-  else response.error();
+  response.success();
   
   return new SMS(from, to, msg);
 }
@@ -72,11 +70,11 @@ SMS.prototype.send = function smsSend() {
   }, {
     success: function(httpResponse) {
       console.log('SMS Sent');
+      response.success('SMS Sent');
     },
     error: function(httpResponse) {
-      console.error(httpResponse);
       console.log('SMS Failed');
-      throw "SMS Failed";
+      response.error('SMS Failed');
     }
   });
 }
