@@ -77,6 +77,10 @@ function SMS(from,to,msg)
   this.msg = msg;
 }
 
+SMS.prototype.get = function smsGet() {
+  return { from: this.from, to: this.to, msg: this.msg };
+}
+
 SMS.prototype.toString = function smsToString() {
   return "SMS - From: " + this.from + ", to: " + this.to + ", message: " + this.msg;
 }
