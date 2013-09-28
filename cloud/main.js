@@ -1,6 +1,6 @@
 
 // -- Global Vars -- //
-require('cloud/globals.js');
+var global = require('cloud/globals.js');
 
 // -- Experts -- //
 var phone_handler = require('cloud/phone.js');
@@ -12,10 +12,14 @@ var email_handler = require('cloud/email.js');
 Parse.Cloud.define("incomingSMS", function(request, response) {
   console.log("-\n");
   
-  console.log("Response: " + response);
-  phone_handler.receiveSMS(request.params);
-  return;
-  
+  try {
+    var sms = phone_handler.receiveSMS(request.params, response);
+    console.log("sms: " + sms);
+  }
+  catch (err) {
+    console.log("Error: " + err.message);
+    console.log("Bad SMS");
+  }
   /*
   console.log(request.params);
 
@@ -39,7 +43,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
     // Responding back to the user via sms
     else if (responses[i].op == 'sms') {
 		try {
-			phone_handler.sendSMS(twilio_number, sender, responses[i].message);
+			phone_handler.sendSMS(TWILIO_NUMBER, sender, responses[i].message);
 		} catch (error) {
 		  response.error(error.message);
 		}
