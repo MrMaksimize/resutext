@@ -1,8 +1,8 @@
 {
     "applications": {
         "ResuText": {
-            "applicationId": "4dd41xGqxXYe3cowlvKR7p8iZX7P7HXjtiUfw0C6", 
-            "masterKey": "bTWvwdPlx1AWDohW4FId6koRkwQ6QBbWzCyFrBIz"
+            "applicationId": "i9SsK4ZdQTDlBg5HtdHDuiW8FGiR1q07bEiNRAuy", 
+            "masterKey": "6qwvAoGygV49kF6HzXqjnhtajuALHlBIJYIFG0J1"
         }, 
         "_default": {
             "link": "ResuText"
