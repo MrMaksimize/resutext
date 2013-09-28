@@ -26,6 +26,13 @@ exports.TWILIO_DATA = function() {
   };
 }
 
+// -- Mandrill Config -- //
+exports.MANDRILL_DATA = function() {
+  return {
+    key : "i2Pv1V3ydMdqKi-CgBexcQ"
+  };
+}
+
 exports.EMAIL_RESUME = function() {
   var returnString = "Hey there! Looks like you wanted to see Maksim's Resume.  And here it is!  Enjoy the read! " + URLS.resumeURL;
   returnString += "\n Don't forget to check out his personal site as well - " + URLS.mrmSite;

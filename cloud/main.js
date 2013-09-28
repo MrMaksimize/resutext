@@ -11,35 +11,28 @@ var expert_handler = require('cloud/expert.js');
 // -- Receiving SMSes -- //
 
 Parse.Cloud.define("incomingSMS", function(request, response) {
-  console.log("");
-  
-  var sms;
-  
-  try {
-    sms = phone_handler.receiveSMS(request.params, response);
-    console.log("Received: " + sms);
-  }
-  catch (err) {
-    console.log("Error: " + err.message);
-    console.log("Bad SMS");
-    return;
-  }
-  
-  console.log("");
+  console.log("---");
 
-  var responses = expert_handler.generateResponse(sms.msg);
-  console.log("responses: " + responses);
+  var sms = phone_handler.receiveSMS(request.params, response);
+  if (sms) console.log("Received: " + sms);
+
+  var actions = expert_handler.parseSMS(sms.msg);
+  if (actions) console.log("Got " + actions.length + " actions");
   
-  performActions(sms, responses);
+  var result = performActions(actions);
+  if (result) console.log("Actions complete");
   
 });
 
 // -- Factory Expert -- //
 
-function performActions(sms, actions) {
+function performActions(actions) {
   
-  console.log("sms: " + sms + "responses: " + responses);
-  
+  actions.forEach(function(action) {
+    //console.log("Action: " + action.object);
+    action.object.send();
+  });
+  /*
   for (var i in responses) {
 
   	// Sending an sms to new numbers
@@ -82,4 +75,5 @@ function performActions(sms, actions) {
       }
     }
   }
+  */
 }

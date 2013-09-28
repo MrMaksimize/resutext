@@ -2,20 +2,28 @@
 // -- Global Vars -- //
 var global = require('cloud/globals.js');
 
-exports.generateResponse = function(command) {
+// -- Other Experts -- //
+var phone_handler = require('cloud/phone.js');
+var email_handler = require('cloud/email.js');
+
+exports.parseSMS = function(smsMsg) {
   
+
+  // Testing Dummy //
+  var sms = phone_handler.makeSMS(global.TWILIO_DATA().number, "+13128602305", "Test SMS");
+  var email = email_handler.makeEMAIL("gefthefrench@gmail.com", "gefthefrench@gmail.com", "Test Email", "Test Email body");
+
   return [
 		{
-			op: "sms",
-			message: "must send sms",
-			phoneNumbers: ["+13128602305"]
+			type: "sms",
+			object: sms
 		},
 		{
-			op: "email",
-			message: "must send email",
-			emails: ["gefthefrench@gmail.com"]
+			type: "email",
+			object: email
 		}
 	];
+  // Testing Dummy //
 
   /*
   var originalCommand = command.toLowerCase();

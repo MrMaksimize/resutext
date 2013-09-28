@@ -16,49 +16,34 @@ exports.findPhoneNumbers = function(messageStr) {
 }
 
 
-// -- SMS Handlers -- //
-
-exports.sendSMS = function(fromNum, toNum, bodyText) {
-  console.log('Send SMS - from: ' + fromNum + ', to : ' + toNum + ', msg: ' + bodyText);
-  
-  Twilio.sendSMS({
-    From: fromNum,
-    To: toNum,
-    Body: bodyText,
-  }, {
-    success: function(httpResponse) {
-      console.log('SMS Success');
-    },
-    error: function(httpResponse) {
-       console.error(httpResponse);
-       throw "SMS Failed";
-    }
-  });
-}
+// -- SMS Handler -- //
 
 exports.receiveSMS = function(sms_data, response) {
 
-  if (!sms_data.From || typeof sms_data.From == 'undefined') {
-    response.error();
-    throw "Received SMS - Invalid sender!";
-  }
-  if (!sms_data.Body || typeof sms_data.Body == 'undefined') {
-    response.error();
-    throw "Received SMS - Invalid body!";
-  }
+  var from = "";
+  var to = global.TWILIO_DATA().number;
+  var msg = "";
 
-  try {
-    var from = sms_data.From;
-    var msg = sms_data.Body.toLowerCase();
-  }
-  catch (err) {
-    response.error();
-    throw "Received SMS - Error";
-    }
+  // Getting the sender number
+  if (sms_data.From && typeof sms_data.From != 'undefined') 
+    from = sms_data.From;
+
+  // Getting the sms body
+  if (sms_data.Body && typeof sms_data.Body != 'undefined') 
+    msg = sms_data.Body;
   
-  response.success();
+  if (from.length > 0 && msg.length > 0) 
+       response.success();
+  else response.error();
   
-  return new SMS(from, global.TWILIO_DATA().number, msg);
+  return new SMS(from, to, msg);
+}
+
+
+// -- Public SMS Constructor -- //
+
+exports.makeSMS = function(from, to, msg) {
+  return new SMS(from,to,msg);
 }
 
 
@@ -75,6 +60,25 @@ function SMS(from,to,msg)
   this.from = from;
   this.to = to;
   this.msg = msg;
+}
+
+SMS.prototype.send = function smsSend() {
+  console.log("Sending " + this);
+  
+  Twilio.sendSMS({
+    From: this.from,
+    To: this.to,
+    Body: this.msg,
+  }, {
+    success: function(httpResponse) {
+      console.log('SMS Sent');
+    },
+    error: function(httpResponse) {
+      console.error(httpResponse);
+      console.log('SMS Failed');
+      throw "SMS Failed";
+    }
+  });
 }
 
 SMS.prototype.get = function smsGet() {
