@@ -24,56 +24,13 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
   
 });
 
+
 // -- Factory Expert -- //
 
 function performActions(actions) {
   
   actions.forEach(function(action) {
-    //console.log("Action: " + action.object);
     action.object.send();
   });
-  /*
-  for (var i in responses) {
 
-  	// Sending an sms to new numbers
-    if (responses[i].op == 'sms' && responses[i].phoneNumbers) {
-      for (var p in responses[i].phoneNumbers) {
-        try {
-        	phone_handler.sendSMS(sms.from, phoneNumbers[p], responses[i].message);
-        } catch (error) {
-          response.error(error.message);
-        }
-      }
-    }
-
-    // Responding back to the user via sms
-    else if (responses[i].op == 'sms') {
-		try {
-			phone_handler.sendSMS(global.TWILIO_DATA().number, sms.to, responses[i].message);
-		} catch (error) {
-		  response.error(error.message);
-		}
-    }
-
-    // Sending emails
-    else if (responses[i].op == 'email') {
-      if (responses[i].emails.length != 0) {
-        var toArray = [];
-        for (var email in responses[i].emails) {
-          toArray.push({email: responses[i].emails[email]});
-        }
-        console.log(toArray);
-        try {
-          email_handler.sendEmail({
-            subject: "Maksim's Resume! Thanks!",
-            text: responses[i].message,
-            to: toArray,
-          });
-        } catch (error) {
-          response.error(error.message);
-        }
-      }
-    }
-  }
-  */
 }
