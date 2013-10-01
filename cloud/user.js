@@ -17,7 +17,7 @@ module.exports = function(){
     var user = new Parse.User();
     user.set('username', username);
     user.set('password', password);
-    
+
     user.signUp().then(function(user) {
       res.redirect('/');
     }, function(error) {
@@ -42,7 +42,7 @@ module.exports = function(){
   });
 
   // Logs out the user
-  app.post('/logout', function(req, res) {
+  app.get('/logout', function(req, res) {
     Parse.User.logOut();
     res.redirect('/');
   });
