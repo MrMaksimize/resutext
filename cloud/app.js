@@ -31,11 +31,19 @@ app.locals._ = require('underscore');
 // This is an example of hooking up a request handler with a specific request
 // path and HTTP verb using the Express routing API.
 app.get('/', function(req, res) {
-  res.render('hello', { message: 'Congrats, you just set up your app!' });
+  if (!Parse.User.current()) {
+    res.render('hello', { message: 'Welcome to ResuText!' });
+  }
+  else {
+    res.render('settings');
+  }
 });
 
 // User endpoints
 app.use('/', require('cloud/user'));
+
+// Settings
+app.use('/', require('cloud/settings'));
 
 // // Example reading from the request query string of an HTTP get request.
 // app.get('/test', function(req, res) {
