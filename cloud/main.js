@@ -1,4 +1,6 @@
 
+// -- Express -- //
+require('cloud/app.js');
 // -- Global Vars -- //
 var global = require('cloud/globals.js');
 
@@ -18,17 +20,17 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 
   var actions = expert_handler.parseSMS(sms.msg, sms.from);
   if (actions) console.log("Got " + actions.length + " actions");
-  
+
   var result = performActions(actions);
   if (result) console.log("Actions complete");
-  
+
 });
 
 
 // -- Factory Expert -- //
 
 function performActions(actions) {
-  
+
   actions.forEach(function(action) {
     action.object.send();
   });
