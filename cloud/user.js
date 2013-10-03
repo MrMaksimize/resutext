@@ -19,7 +19,15 @@ module.exports = function(){
     user.set('password', password);
 
     user.signUp().then(function(user) {
-      res.redirect('/');
+      var UserSettings = Parse.Object.extend("UserSettings");
+      var query = new Parse.Query(UserSettings);
+      var userSettings = new UserSettings();
+      userSettings.set("user", user);
+      userSettings.save().then(function(userSettings) {
+        user.set("userSettings", userSettings);
+        user.save();
+        res.redirect('/');
+      });
     }, function(error) {
       // Show the error message and let the user try again
       res.render('signup', { flash: error.message });
