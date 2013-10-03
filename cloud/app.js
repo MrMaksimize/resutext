@@ -35,7 +35,14 @@ app.get('/', function(req, res) {
     res.render('hello', { message: 'Welcome to ResuText!' });
   }
   else {
-    res.render('settings');
+    var userSettings = Parse.User.current().get('userSettings');
+    userSettings.fetch({
+      success: function(userSettings) {
+        res.render('settings', {
+          linkedin: userSettings.get('linkedin') || ''
+        });
+      }
+    });
   }
 });
 

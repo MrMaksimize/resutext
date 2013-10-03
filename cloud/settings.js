@@ -10,32 +10,6 @@ module.exports = function(){
     var userSettings = Parse.User.current().get('userSettings');
     userSettings.set("linkedin", req.body.linkedin);
     userSettings.save();
-   /*var UserSettings = Parse.Object.extend("UserSettings");
-    var query = new Parse.Query(UserSettings);
-    var userSettings = new UserSettings();
-    //query.equalTo("user", Parse.User.current());
-    query.first({
-      success: function(userSettings) {
-        console.log('user settings retrieved');
-        console.log(userSettings);
-      },
-      error: function(error) {
-        console.log('error');
-        console.log(error);
-      }
-    });
-    */
-    /*var userSettings = new UserSettings();
-
-    userSettings.set("linkedin", req.body.linkedin);
-    userSettings.save(null, {
-      success: function(userSettings) {
-        console.log('save success');
-      },
-      error: function(userSettings, error) {
-        console.log('failure ' + error.description);
-      }
-    });*/
   });
 
   return app;
