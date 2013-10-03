@@ -31,6 +31,73 @@ function checkResumeURL(StrObj) {
 }
 
 
+// -- User lookup -- //
+
+exports.findUserWithPhone = function(phone) {
+
+  if (!phone || phone.length < 10)                return null;
+  if (phone_handler.findPhoneNumbers(phone) < 1)  return null;
+
+  // -- Test authentication -- //
+
+  var currentUser = Parse.User.current();
+  if (currentUser) {
+    console.log("Current: " + currentUser.username);
+  } else {
+      console.log("No current User");
+  }
+
+  var user = Parse.User.logIn("gefthefrench@gmail.com", "resutext", {
+    success: function(user) {
+      console.log("Logged in");
+    },
+    error: function(user, error) {
+      console.log("Error logging in");
+    }
+  });
+
+  var currentUser = Parse.User.current();
+  if (currentUser) {
+    console.log("Current: " + currentUser.username);
+  } else {
+      console.log("No current User");
+  }
+  // -- End test -- //
+
+  /*
+  var query = new Parse.Query(Parse.User);
+  query.equalTo("phone", phone);
+  query.find({
+    success: function(results) {
+      console.log("Result: " + results);
+      //console.log("Successfully found " + results.length + " users.");
+      // Do something with the returned Parse.Object values
+      /*
+      for (var i = 0; i < results.length; i++) { 
+        var object = results[i];
+        console.log(object.id + ' - ' + object.get('phone'));
+      }
+      */
+      /*
+    },
+    error: function(error) {
+      alert("Error: " + error.code + " " + error.message);
+    }
+  });
+*/
+
+  return "ha!";
+}
+
+exports.findUserWithEmail = function(email) {
+
+  if (!email || email.length < 1)                   return null;
+  if (email_handler.findEmailAddresses(email) < 1)  return null;
+
+  return "he!";
+}
+
+
 // -- USER OBJECT -- //
 
 /*
@@ -65,14 +132,11 @@ USER.prototype.register = function userRegister() {
     resume: this.resume
   }, {
     success: function(user) {
-      // Hooray! Let them use the app now.
-      alert('New object created with objectId: ' + user.id);
-      console.log('New object created with objectId: ' + user.id);
+      console.log('New user created');
     },
     error: function(user, error) {
-      // Show the error message somewhere and let the user try again.
       alert("Error: " + error.code + " " + error.message);
-      console.log('Failed to create new object, with error code: ' + error.description);
+      console.log('Failed to create new user: ' + error.description);
     }
   });
 }

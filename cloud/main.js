@@ -31,12 +31,17 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 Parse.Cloud.define("newUser", function(request, response) {
   console.log("---");
 
+  var result = user_handler.findUserWithPhone("3128602305");
+  console.log("Post: " + result);
+  response.success();
+  /*
   var user = user_handler.makeAUser("gefthefrench@gmail.com", "Jeff", "French", "3128602305", "https://dl.dropboxusercontent.com/u/30415492/Resume_Geoffroy.pdf");
 
   if (!user)  response.error();
   else        response.success();
 
   if (user) user.register();
+  */
   
 });
 
