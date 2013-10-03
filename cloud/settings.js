@@ -20,6 +20,20 @@ module.exports = function(){
     });*/
     console.log(req.body);
     res.render('hello', { message: req.body.linkedin });
+
+    var UserSettings = Parse.Object.extend("UserSettings");
+    var userSettings = new UserSettings();
+
+    userSettings.set("linkedin", req.body.linkedin);
+    userSettings.set("user", Parse.User.current());
+    userSettings.save(null, {
+      success: function(userSettings) {
+        console.log('save success');
+      },
+      error: function(userSettings, error) {
+        console.log('failure ' + error.description);
+      }
+    });
   });
 
   return app;
