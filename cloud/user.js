@@ -17,9 +17,17 @@ module.exports = function(){
     var user = new Parse.User();
     user.set('username', username);
     user.set('password', password);
-    
+
     user.signUp().then(function(user) {
-      res.redirect('/');
+      var UserSettings = Parse.Object.extend("UserSettings");
+      var query = new Parse.Query(UserSettings);
+      var userSettings = new UserSettings();
+      userSettings.set("user", user);
+      userSettings.save().then(function(userSettings) {
+        user.set("userSettings", userSettings);
+        user.save();
+        res.redirect('/');
+      });
     }, function(error) {
       // Show the error message and let the user try again
       res.render('signup', { flash: error.message });
@@ -42,7 +50,7 @@ module.exports = function(){
   });
 
   // Logs out the user
-  app.post('/logout', function(req, res) {
+  app.get('/logout', function(req, res) {
     Parse.User.logOut();
     res.redirect('/');
   });
