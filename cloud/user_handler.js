@@ -22,19 +22,20 @@ exports.findUserWithPhone = function(phone) {
 
   // -- Test authentication -- //
 
-  var currentUser = Parse.User.current();
-  if (currentUser) {
-    console.log("Current: " + currentUser.username);
-  } else {
-      console.log("No current User");
-  }
-
-  var user = Parse.User.logIn("gefthefrench@gmail.com", "resutext", {
+  // V1
+  Parse.User.logIn("gefthefrench@gmail.com", "resutext").then(function(user) {
+      console.log("Logged in 1");
+    }, function(error) {
+      console.log("Error logging in 1");
+    });
+  
+  // V2
+  Parse.User.logIn("gefthefrench@gmail.com", "resutext", {
     success: function(user) {
-      console.log("Logged in");
+      console.log("Logged in 2");
     },
     error: function(user, error) {
-      console.log("Error logging in");
+      console.log("Error logging in 2");
     }
   });
 
