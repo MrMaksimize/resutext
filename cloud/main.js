@@ -6,6 +6,7 @@ var global = require('cloud/globals.js');
 var phone_handler = require('cloud/phone.js');
 var user_handler = require('cloud/user_handler.js');
 var expert_handler = require('cloud/expert.js');
+var resume_handler = require('cloud/resume.js');
 
 
 // -- Receiving SMSes -- //
@@ -22,6 +23,16 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
   else console.log("Got: " + "Invalid Actions");
 
   var result = performActions(actions);
+
+});
+
+
+// -- Resume Business -- //
+
+Parse.Cloud.define("uploadResume", function(request, response) {
+  console.log("---");
+
+  resume_handler.uploadResume(request, response);
 
 });
 
