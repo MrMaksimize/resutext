@@ -55,6 +55,18 @@ module.exports = function(){
     res.redirect('/');
   });
 
+  app.get('/auth', function (req, res) {
+  // the first time will redirect to linkedin
+  var linkedin_client = require('cloud/modules/linkedin/linkedin').initialize();
+  console.log(linkedin_client);
+  linkedin_client.getAccessToken(req, res, function (error, token) {
+    // will enter here when coming back from linkedin
+    req.session.token = token;
+
+    res.render('auth');
+  });
+});
+
   return app;
 }();
 
