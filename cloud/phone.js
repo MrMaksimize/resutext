@@ -27,10 +27,18 @@ exports.receiveSMS = function(sms_data, response) {
   // Getting the sender number
   if (sms_data.From && typeof sms_data.From != 'undefined') 
     from = sms_data.From;
+  else {
+    response.error();
+    return null;
+  }
 
   // Getting the sms body
   if (sms_data.Body && typeof sms_data.Body != 'undefined') 
     msg = sms_data.Body;
+  else {
+    response.erro();
+    return null;
+  }
   
   response.success();
   

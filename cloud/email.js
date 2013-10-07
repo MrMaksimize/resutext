@@ -7,6 +7,8 @@ var Mandrill = require('mandrill');
 Mandrill.initialize(global.MANDRILL_DATA().key);
 
 
+// -- Utilities -- //
+
 exports.findEmailAddresses = function(StrObj) {
   var emailsArray = [];
   emailsArray = StrObj.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
@@ -63,7 +65,7 @@ EMAIL.prototype.send = function emailSend() {
 }
 
 EMAIL.prototype.get = function emailGet() {
-  return { from: this.from, to: this.to, subject: subject, msg: this.msg };
+  return { from: this.from, to: this.to, subject: this.subject, msg: this.msg };
 }
 
 EMAIL.prototype.toString = function emailToString() {
