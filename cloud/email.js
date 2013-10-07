@@ -9,9 +9,11 @@ Mandrill.initialize(global.MANDRILL_DATA().key);
 
 // -- Utilities -- //
 
-exports.findEmailAddresses = function(StrObj) {
+exports.findEmailAddresses = function(strObj) {
   var emailsArray = [];
-  emailsArray = StrObj.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
+  if (strObj.length < 3) return emailsArray;
+  
+  emailsArray = strObj.match(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi);
   return emailsArray;
 }
 

@@ -11,6 +11,8 @@ Twilio.initialize(global.TWILIO_DATA().accountSid, global.TWILIO_DATA().authToke
 // Finding phone numbers in strings
 exports.findPhoneNumbers = function(messageStr) {
   var phoneNumbersArray = [];
+  if (messageStr.length < 10) return phoneNumbersArray;
+  
   phoneNumbersArray = messageStr.match(/\+?1?[0-9]{3}[\- ]?[0-9]{3}[\- ]?[0-9]{4}/);
   return phoneNumbersArray;
 }
