@@ -23,12 +23,12 @@ exports.findUserWithPhone = function(phone) {
   // -- Test authentication -- //
 
   // V1
-  Parse.User.logIn("gefthefrench@gmail.com", "resutext").then(function(user) {
+  /*Parse.User.logIn("gefthefrench@gmail.com", "resutext").then(function(user) {
       console.log("Logged in 1");
     }, function(error) {
       console.log("Error logging in 1");
     });
-  
+
   // V2
   Parse.User.logIn("gefthefrench@gmail.com", "resutext", {
     success: function(user) {
@@ -46,30 +46,11 @@ exports.findUserWithPhone = function(phone) {
       console.log("No current User");
   }
   // -- End test -- //
-
-  /*
-  var query = new Parse.Query(Parse.User);
-  query.equalTo("phone", phone);
-  query.find({
-    success: function(results) {
-      console.log("Result: " + results);
-      //console.log("Successfully found " + results.length + " users.");
-      // Do something with the returned Parse.Object values
-      /*
-      for (var i = 0; i < results.length; i++) { 
-        var object = results[i];
-        console.log(object.id + ' - ' + object.get('phone'));
-      }
-      */
-      /*
-    },
-    error: function(error) {
-      alert("Error: " + error.code + " " + error.message);
-    }
-  });
 */
 
-  return "ha!";
+  var query = new Parse.Query(Parse.User);
+  query.equalTo("phone", phone);
+  return query.find();
 }
 
 exports.findUserWithEmail = function(email) {

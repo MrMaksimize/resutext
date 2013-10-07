@@ -20,9 +20,9 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
   var actions = expert_handler.parseSMS(sms.msg, sms.from);
   if (actions) console.log("Got " + actions.length + " action(s)");
   else console.log("Got: " + "Invalid Actions");
-  
+
   var result = performActions(actions);
-  
+
 });
 
 
@@ -31,9 +31,13 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 Parse.Cloud.define("newUser", function(request, response) {
   console.log("---");
 
-  var result = user_handler.findUserWithPhone("3128602305");
-  console.log("Post: " + result);
+  var result = user_handler.findUserWithPhone("7736777755").then(function(results) {
+  console.log('POST' + results);
+  console.log(results);
   response.success();
+  });
+
+
   /*
   var user = user_handler.makeAUser("gefthefrench@gmail.com", "Jeff", "French", "3128602305", "https://dl.dropboxusercontent.com/u/30415492/Resume_Geoffroy.pdf");
 
@@ -42,14 +46,14 @@ Parse.Cloud.define("newUser", function(request, response) {
 
   if (user) user.register();
   */
-  
+
 });
 
 
 // -- Factory Expert -- //
 
 function performActions(actions) {
-  
+
   actions.forEach(function(action) {
     action.object.send();
   });
