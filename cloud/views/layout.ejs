@@ -21,6 +21,10 @@
      <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
      <link href="//netdna.bootstrapcdn.com/bootswatch/3.0.0/flatly/bootstrap.min.css" rel="stylesheet">
      <link href="/stylesheets/styles.css" rel="stylesheet" type="text/css" />
+     <script type="text/javascript" src="https://platform.linkedin.com/in.js">
+         api_key: v0wh3ponihe9
+         authorize: true
+      </script>
   </head>
 
   <body>
@@ -65,12 +69,16 @@
         </div>
       </div>-->
 
+<script type="in/Login">
+      Hello, <?js= firstName ?> <?js= lastName ?>
+    </script>
+
       <% if (locals.flash) { %>
         <div class="flash"><%= flash %></div>
       <% } %>
 
       <%- body %>
-        
+
 
     </div><!-- /.container -->
   </body>
