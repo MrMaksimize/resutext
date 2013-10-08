@@ -17,10 +17,10 @@ app.use(express.methodOverride());
 app.use(express.cookieParser('SECRET_SIGNING_KEY'));
 app.use(parseExpressCookieSession({
     fetchUser: true,
-      key: 'image.sess',
-        cookie: {
-              maxAge: 3600000 * 24 * 30
-                }
+    key: 'image.sess',
+    cookie: {
+      maxAge: 3600000 * 24 * 30
+    }
 }));
 
 
