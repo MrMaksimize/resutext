@@ -74,10 +74,6 @@ module.exports = function(){
   app.get('/auth', function (req, res) {
   // the first time will redirect to linkedin
   var linkedin = require('cloud/modules/linkedin/linkedin');
-  console.log('authtest');
-  var http = require('http');
-  var url= require('url');
-  var querystring= require('qs');
     if (req.url.indexOf('auth')) {
     console.log('init');
     //redirectForAuth(req, res);
@@ -129,8 +125,47 @@ module.exports = function(){
             var accessToken = httpResponse.data.access_token;
             console.log(accessToken);
             if (accessToken) {
+              console.log('Set Cookie');
               res.cookie('LIAccess_token', accessToken);
-              res.send('Success');
+
+              console.log("Step3");
+              var APICall = 'people/~:(first-name,last-name,headline,picture-url)';
+              console.log(APICall);
+              if (APICall.indexOf("?")>=0) {
+                var JSONformat="&format=json";
+              } else {
+                var JSONformat="?format=json";
+              }
+
+              console.log(JSONformat);
+
+              var profPath = 'https://api.linkedin.com/v1/' + APICall + JSONformat + '&oauth2_access_token=' + accessToken;
+              console.log(profPath);
+              Parse.Cloud.httpRequest({
+                method: "GET",
+                url: profPath,
+                success: function(httpResponse) {
+                  console.log("status: ");
+                  console.log(httpResponse.status);
+                  console.log("headers: ");
+                  console.log(httpResponse.headers);
+                  console.log("text: ");
+                  console.log(httpResponse.text);
+                  console.log("data: ");
+                  console.log(httpResponse.data);
+                  res.send('Success');
+                },
+                error: function(httpResponse) {
+                  console.log("status: ");
+                  console.log(httpResponse.status);
+                  console.log("headers: ");
+                  console.log(httpResponse.headers);
+                  console.log("text: ");
+                  console.log(httpResponse.text);
+                  console.log("data: ");
+                  console.log(httpResponse.data);
+                }
+              });
             }
             
           },

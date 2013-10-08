@@ -4,13 +4,10 @@ var querystring= require('qs');
 
 var APIKey = 'v0wh3ponihe9';
 var APIKeySecret = 'UmYOhdOAg8aS7dQI';
-var APIScope = 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages';
-var consumerSecret = '4d0c18d6-2576-47b5-9919-644467850a9b';
-var consumerKey = '9e6a295d-b6c1-4caf-bfd0-cea3e2bcdd09';
-var OAuth = require('cloud/modules/oauth/oauth').OAuth;
-var requestTokenURL = 'https://api.linkedin.com/uas/oauth/requestToken';
-var acessTokenURL = 'https://api.linkedin.com/uas/oauth/accessToken';
-var restBase = 'http://api.linkedin.com/v1';
+var APIVersion = "v1";
+var APIScope = '';
+var DefaultAPIScope = 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages';
+var restBase = 'https://api.linkedin.com/v1';
 var callbackURL = 'http://resutext.parseapp.com/auth';
 var paramAppender = "?";
 var hasParameters = /\/*\?/i;
@@ -32,6 +29,12 @@ var randomState = function(howLong) {
   return text;
 }
 
+exports.initialize = function(api_key, api_key_secret, callback_url, api_scope) {
+  APIKey = api_key;
+  APIKeySecret = api_key_secret;
+  APIScope = api_scope ? api_scope : DefaultAPIScope;
+  callbackURL = callback_url;
+}
 
 exports.getAuthorizationCode = function (req, res) {
   var location = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=' 
@@ -42,35 +45,142 @@ exports.getAuthorizationCode = function (req, res) {
   res.redirect(location);
 }
 
-exports.getAccessToken = function(request, response, code) {
+
+exports.getAccessToken = function(req, res, authCode) {
   // https://api.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=CODEHERE&redirect_uri=http://resutext.parseapp.com/auth&client_id=v0wh3ponihe9&client_secret=UmYOhdOAg8aS7dQI
-  console.log("Step2");
+  console.log("Get Access Token");
 
-  var path = "https://api.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" 
-    + code + "&redirect_uri=" 
-    + callbackURL + "&client_id=" 
-    + APIKey + "&client_secret=" 
-    + APIKeySecret;
+  console.log('Post Auth');
+  Parse.Cloud.httpRequest({
+    method: "POST",
+    url: 'https://api.linkedin.com/uas/oauth2/accessToken', // Todo to variables abstract
+    params: {
+      grant_type: 'authorization_code',
+      code: authCode,
+      redirect_uri: 'http://resutext.parseapp.com/auth',
+      client_id: 'v0wh3ponihe9',
+      client_secret: 'UmYOhdOAg8aS7dQI'
+    }
+    success: function(httpResponse) {
+        console.log("status: ");
+        console.log(httpResponse.status);
+        console.log("headers: ");
+        console.log(httpResponse.headers);
+        console.log("text: ");
+        console.log(httpResponse.text);
+        console.log("data: ");
+        console.log(httpResponse.data);
 
-    console.log(path);
+        var accessToken = httpResponse.data.access_token;
+        console.log(accessToken);
+        if (accessToken) {
+          console.log('Set Cookie');
+          res.cookie('LIAccess_token', accessToken);
+        }
+    }
+    error: function(httpResponse) {
+            console.log("status: ");
+            console.log(httpResponse.status);
+            console.log("headers: ");
+            console.log(httpResponse.headers);
+            console.log("text: ");
+            console.log(httpResponse.text);
+            console.log("data: ");
+            console.log(httpResponse.data);
+            //console.log(httpResponse);
+    }
+  });
+}
+
+exports.executeRequest = function(access_token, request_path, callbackFunction) {
+  if (APICall.indexOf("?")>=0) {
+    var JSONformat="&format=json";
+  } else {
+    var JSONformat="?format=json";
+  }
+  
+  var path = 'https://api.linkedin.com/' + APIVersion +'/' + APICallPath
+}
+
+exports.step3 = function(req, res, access_token, APICall, callback) {
+  console.log("Step3");
+
+  if (APICall.indexOf("?")>=0) {
+    var JSONformat="&format=json";
+  } else {
+    var JSONformat="?format=json";
+  }
+
+  var APICallPath = APICalls[APICall];
+
+  var path = 'https://api.linkedin.com/' + APIVersion +'/' + APICallPath + JSONformat + '&oauth2_access_token=' + access_token;
 
   Parse.Cloud.httpRequest({
     method: "POST",
     url: path,
     success: function(httpResponse) {
-      console.log("statusCode: ", httpResponse.statusCode);
-      console.log("headers: ", res.headers);
-      console.log(httpResponse);
+      console.log("status: ");
+      console.log(httpResponse.status);
+      console.log("headers: ");
+      console.log(httpResponse.headers);
+      console.log("text: ");
+      console.log(httpResponse.text);
+      console.log("data: ");
+      console.log(httpResponse.data);
     },
     error: function(httpResponse) {
-      console.log("statusCode: ", httpResponse.statusCode);
-      console.log("headers: ", res.headers);
-      console.log(httpResponse);
+      console.log("status: ");
+      console.log(httpResponse.status);
+      console.log("headers: ");
+      console.log(httpResponse.headers);
+      console.log("text: ");
+      console.log(httpResponse.text);
+      console.log("data: ");
+      console.log(httpResponse.data);
     }
   });
+
+
 }
 
-exports.initialize = function(req, res) {
+
+
+var APICalls = [];
+
+// My Profile and My Data APIS
+APICalls['myProfile'] = 'people/~:(first-name,last-name,headline,picture-url)';
+APICalls['myConnections'] = 'people/~/connections';
+APICalls['myNetworkShares'] = 'people/~/shares';
+APICalls['myNetworksUpdates'] = 'people/~/network/updates';
+APICalls['myNetworkUpdates'] = 'people/~/network/updates?scope=self';
+
+// PEOPLE SEARCH APIS
+// Be sure to change the keywords or facets accordingly
+APICalls['peopleSearchWithKeywords'] = 'people-search:(people:(id,first-name,last-name,picture-url,headline),num-results,facets)?keywords=Hacker+in+Residence';
+APICalls['peopleSearchWithFacets'] = 'people-search:(people,facets)?facet=location,us:84';
+
+// GROUPS APIS
+// Be sure to change the GroupId accordingly
+APICalls['myGroups'] = 'people/~/group-memberships?membership-state=member';
+APICalls['groupSuggestions'] = 'people/~/suggestions/groups';
+APICalls['groupPosts'] = 'groups/12345/posts:(title,summary,creator)?order=recency';
+APICalls['groupDetails'] = 'groups/12345:(id,name,short-description,description,posts)';
+
+// COMPANY APIS
+// Be sure to change the CompanyId or facets accordingly
+APICalls['myFollowingCompanies'] = 'people/~/following/companies';
+APICalls['myFollowCompanySuggestions'] = 'people/~/suggestions/to-follow/companies';
+APICalls['companyDetails'] = 'companies/1337:(id,name,description,industry,logo-url)';
+APICalls['companySearch'] = 'company-search:(companies,facets)?facet=location,us:84';
+
+// JOBS APIS
+// Be sure to change the JobId or facets accordingly
+APICalls['myJobSuggestions'] = 'people/~/suggestions/job-suggestions';
+APICalls['myJobBookmarks'] = 'people/~/job-bookmarks';
+APICalls['jobDetails'] = 'jobs/1452577:(id,company:(name),position:(title))';
+APICalls['jobSearch'] = 'job-search:(jobs,facets)?facet=location,us:84';
+
+exports.initialize2 = function(req, res) {
   if (req.url == '/auth') {
     console.log('init');
     //redirectForAuth(req, res);
