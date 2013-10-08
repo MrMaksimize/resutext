@@ -1,140 +1,137 @@
-var http= require('http');
+var http = require('http');
 var url= require('url');
 var querystring= require('qs');
 
+var APIKey = 'v0wh3ponihe9';
+var APIKeySecret = 'UmYOhdOAg8aS7dQI';
+var APIScope = 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages';
+var consumerSecret = '4d0c18d6-2576-47b5-9919-644467850a9b';
+var consumerKey = '9e6a295d-b6c1-4caf-bfd0-cea3e2bcdd09';
 var OAuth = require('cloud/modules/oauth/oauth').OAuth;
 var requestTokenURL = 'https://api.linkedin.com/uas/oauth/requestToken';
 var acessTokenURL = 'https://api.linkedin.com/uas/oauth/accessToken';
 var restBase = 'http://api.linkedin.com/v1';
-var redirect = 'http://resutext.parseapp.com';
+var callbackURL = 'http://resutext.parseapp.com/auth';
 var paramAppender = "?";
 var hasParameters = /\/*\?/i;
 var rest_base = 'http://api.linkedin.com/v1';
 var client = {};
 
-exports.initialize = function() {
-  var consumerKey = '9e6a295d-b6c1-4caf-bfd0-cea3e2bcdd09';
-  var consumerSecret = '4d0c18d6-2576-47b5-9919-644467850a9b';
-  var CLIENT = {
-    oauth: new OAuth(
-      'https://api.linkedin.com/uas/oauth/requestToken',
-      'https://api.linkedin.com/uas/oauth/accessToken',
-      consumerKey,
-      consumerSecret,
-      '1.0',
-      redirect,
-      'HMAC-SHA1',
-      null,
-      {'Accept': '*/*', 'Connection': 'close'}
-    )
-  };
+var randomState = function(howLong) {
+  howLong=parseInt(howLong);
 
-  /**
-   * Does an API call to linkedin and callbacks
-   * when the result is available.
-   *
-   * @param {String} method
-   * @param {String} path
-   * @param {Object} params
-   * @param {Function} callback
-   * @return {Request}
-   */
-  CLIENT.apiCall = function (method, path, params, callback) {
-    var token = params.token;
+  if (!howLong || howLong<=0) {
+    howLong=18;
+  }
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
 
-    delete params.token;
+  for (var i = 0; i < howLong; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
 
-    function requestCallback(callback) {
-      return function (error, data, response) {
-        if (error) {
-          callback(error, null);
-        } else {
-          try {
-            callback(null, JSON.parse(data));
-          } catch (exc) {
-            callback(exc, null);
-          }
-        }
-      };
+
+exports.getAuthorizationCode = function (req, res) {
+  var location = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=' 
+                  + APIKey + '&scope=' 
+                  + APIScope + '&state=RNDM_' 
+                  + randomState(18) + '&redirect_uri=' 
+                  + callbackURL;
+  res.redirect(location);
+}
+
+exports.getAccessToken = function(request, response, code) {
+  // https://api.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=CODEHERE&redirect_uri=http://resutext.parseapp.com/auth&client_id=v0wh3ponihe9&client_secret=UmYOhdOAg8aS7dQI
+  console.log("Step2");
+
+  var path = "https://api.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=" 
+    + code + "&redirect_uri=" 
+    + callbackURL + "&client_id=" 
+    + APIKey + "&client_secret=" 
+    + APIKeySecret;
+
+    console.log(path);
+
+  Parse.Cloud.httpRequest({
+    method: "POST",
+    url: path,
+    success: function(httpResponse) {
+      console.log("statusCode: ", httpResponse.statusCode);
+      console.log("headers: ", res.headers);
+      console.log(httpResponse);
+    },
+    error: function(httpResponse) {
+      console.log("statusCode: ", httpResponse.statusCode);
+      console.log("headers: ", res.headers);
+      console.log(httpResponse);
     }
+  });
+}
 
-    if (method.toUpperCase() === 'GET') {
-      params.format = 'json';
-      
-      if (path.match(hasParameters)) { 
-          paramAppender = "&";
-      } 
+exports.initialize = function(req, res) {
+  if (req.url == '/auth') {
+    console.log('init');
+    //redirectForAuth(req, res);
 
-      return CLIENT.oauth.get(
-        _rest_base + path + paramAppender + querystring.stringify(params)
-      , token.oauth_token
-      , token.oauth_token_secret
-      , requestCallback(callback)
-      );
-    } else if (method.toUpperCase() === 'POST') {
-      return CLIENT.oauth.post(
-        _rest_base + path
-      , token.oauth_token
-      , token.oauth_token_secret
-      , params
-      , 'application/json; charset=UTF-8'
-      , requestCallback(callback)
-      );
+    // Check to see if authorization for end user has already been made and skip Oauth dance
+    var cookies = {};
+    req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
+      var parts = cookie.split('=');
+      cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
+    });
+    
+    // If we have the access_token in the cookie skip the Oauth Dance and go straight to Step 3
+    if (cookies['LIAccess_token']){
+      // STEP 3 - Get LinkedIn API Data
+      // console.log("we have the cookie value" + cookies['LIAccess_token']);
+      //OauthStep3(req, response, cookies['LIAccess_token'], APICalls['peopleSearchWithKeywords']);
+      console.log('exec step 3');
+
     }
-  };
+    else {
+      var queryObject = url.parse(req.url, true).query;
 
-  /**
-   * Redirects to linkedin to retrieve the token
-   * or callbacks with the proper token
-   *
-   * @param {Request} req
-   * @param {Response} res
-   * @param {Function} callback
-   */
-  CLIENT.getAccessToken = function (req, res, callback) {
-    var parsed_url = url.parse(req.url, true)
-      , protocol = req.socket.encrypted ? 'https' : 'http'
-      , callback_url = protocol + '://' + req.headers.host + parsed_url.pathname
-      , has_token = parsed_url.query && parsed_url.query.oauth_token
-      , has_secret = req.session && req.session.auth && req.session.auth.linkedin_oauth_token_secret;
-
-   // var query = url.parse(req.url, true).query
-   //   , auth = req.session && req.session.auth;
-
-    // Access token
-    if (has_token && has_secret) {
-
-      CLIENT.oauth.getOAuthAccessToken(
-        parsed_url.query.oauth_token
-      , req.session.auth.linkedin_oauth_token_secret
-      , parsed_url.query.oauth_verifier
-      , function (error, oauth_token, oauth_token_secret, additionalParameters) {
-          if (error) {
-            callback(error, null);
-          } else {
-            callback(null, {oauth_token: oauth_token, oauth_token_secret: oauth_token_secret});
-          }
-        }
-      );
-
-    // Request token
-    } else {
-
-      CLIENT.oauth.getOAuthRequestToken(
-        {oauth_callback: callback_url}
-      , function (error, oauth_token, oauth_token_secret, oauth_authorize_url, additional_parameters) {
-          if (error) {
-            callback(error, null);
-          } else {
-            req.session.linkedin_redirect_url = req.url;
-            req.session.auth = req.session.auth || {};
-            req.session.auth.linkedin_oauth_token_secret = oauth_token_secret;
-            req.session.auth.linkedin_oauth_token = oauth_token;
-            res.redirect("https://www.linkedin.com/uas/oauth/authenticate?oauth_token=" + oauth_token);
-          }
-        }
-      );
+      if (!queryObject.code) {
+        // STEP 1 - If this is the first run send them to LinkedIn for Auth
+        redirectForAuth(req, res);
+      } else {
+        // STEP 2 - If they have given consent and are at the callback do the final token request
+        callBackPostAuth(req, res, queryObject.code);
+      }
     }
-  };
-  return CLIENT;
-};
+  }
+}
+
+    /*var req = https.request(options, function(res) {
+      console.log("statusCode: ", res.statusCode);
+      console.log("headers: ", res.headers);
+
+      res.on('data', function(d) {
+        // STEP 3 - Get LinkedIn API Data
+        // We have successfully completed Oauth and have received our access_token.  Congrats! 
+        // Now let's make a real API call (Example API call referencing APICalls['peopleSearchWithKeywords'] below)
+        // See more example API Calls at the end of this file
+
+        access_token = JSON.parse(d).access_token;
+
+        var ExpiresIn29days = new Date();
+        ExpiresIn29days.setDate(in30days.getDate() + 29);
+        response.writeHead(200, {
+          'Set-Cookie':'LIAccess_token=' + access_token + '; Expires=' + ExpiresIn29days
+        });
+
+        OauthStep3(request, response, access_token, APICalls['peopleSearchWithKeywords']);
+      });
+    });
+
+    req.on('error', function(e) {
+      console.error("There was an error with our Oauth Call in Step 2: " + e);
+      response.end("There was an error with our Oauth Call in Step 2");
+    });
+    req.end();
+  };*/
+
+
+
