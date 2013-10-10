@@ -61,9 +61,6 @@ module.exports = function(){
   });
 
 
-
-
-
   app.get('/auth', function (req, res) {
   // the first time will redirect to linkedin
     var linkedin = require('cloud/modules/linkedin/linkedin');

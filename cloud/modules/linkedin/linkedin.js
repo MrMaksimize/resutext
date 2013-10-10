@@ -1,25 +1,24 @@
 var http = require('http');
-var url= require('url');
+var url = require('url');
 var qs = require('qs');
+var _ = require('underscore');
 
-var APIKey = 'v0wh3ponihe9';
-var APIKeySecret = 'UmYOhdOAg8aS7dQI';
-var APIVersion = "v1";
-var APIScope = '';
-var DefaultAPIScope = 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages';
-var restBase = 'https://api.linkedin.com/v1';
-var callbackURL = 'http://resutext.parseapp.com/auth';
-var paramAppender = "?";
-var hasParameters = /\/*\?/i;
-var rest_base = 'http://api.linkedin.com/v1';
-var client = {};
+var settings = {
+  APIKey: 'v0wh3ponihe9',
+  APIKeySecret: 'UmYOhdOAg8aS7dQI',
+  callbackURL: '',
+  redirectAfterAuth: '',
+  APIScope: 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages',
+  restBase: 'https://api.linkedin.com/v1'
+  authCode: '',
+}
 
 
-var randomState = function(howLong) {
-  howLong=parseInt(howLong);
+var randomState = function(stateLength) {
+  howLong = parseInt(stateLength);
 
-  if (!howLong || howLong<=0) {
-    howLong=18;
+  if (!howLong || howLong <= 0) {
+    howLong = 18;
   }
   var text = "";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
@@ -41,11 +40,9 @@ var logResponse = function(httpResponse) {
   console.log(httpResponse.data);
 }
 
-exports.initialize = function(api_key, api_key_secret, callback_url, api_scope) {
-  APIKey = api_key;
-  APIKeySecret = api_key_secret;
-  APIScope = api_scope ? api_scope : DefaultAPIScope;
-  callbackURL = callback_url;
+// exports is an object that is returned as a result of a require call.
+exports.initialize = function(newSettings) {
+  settings = _.extend(settings, newSettings);
 }
 
 exports.getCookies = function(req) {
@@ -62,22 +59,16 @@ exports.getAuthorizationCode = function (req, res) {
   var location = 'https://www.linkedin.com/uas/oauth2/authorization';
   location = location + '?' + qs.stringify({
     'response_type': 'code',
-    'client_id': APIKey,
-    'scope': APIScope,
+    'client_id': settings.APIKey,
+    'scope': settings.APIScope,
     'state': 'RNDM_' + randomState(18),
-    'redirect_uri': callbackURL
+    'redirect_uri': settings.callbackURL
   });
-  /*var location = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=' 
-                  + APIKey + '&scope=' 
-                  + APIScope + '&state=RNDM_' 
-                  + randomState(18) + '&redirect_uri=' 
-                  + callbackURL;*/
   res.redirect(location);
 }
 
 
 exports.getAccessToken = function(req, res, authCode) {
-  // https://api.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=CODEHERE&redirect_uri=http://resutext.parseapp.com/auth&client_id=v0wh3ponihe9&client_secret=UmYOhdOAg8aS7dQI
   console.log("Get Access Token");
 
   console.log('Post Auth');
@@ -87,16 +78,14 @@ exports.getAccessToken = function(req, res, authCode) {
     params: {
       grant_type: 'authorization_code',
       code: authCode,
-      redirect_uri: 'http://resutext.parseapp.com/auth',
-      client_id: 'v0wh3ponihe9',
-      client_secret: 'UmYOhdOAg8aS7dQI'
+      redirect_uri: settings.redirectAfterAuth,
+      client_id: settings.APIKey,
+      client_secret: settings.APIKeySecret
     },
     success: function(httpResponse) {
       logResponse(httpResponse);
-
-      var accessToken = httpResponse.data.access_token;
-      console.log(accessToken);
-      if (accessToken) {
+      console.log(httpResponse.data.access_token);
+      if (httpResponse.data.access_token) {
         console.log('Set Cookie');
         res.cookie('LIAccess_token', accessToken);
         res.redirect('https://resutext.parseapp.com');
@@ -115,9 +104,8 @@ exports.executeRequest = function(access_token, request_path, callbackFunction) 
     var JSONformat="?format=json";
   }
   
-  var path = 'https://api.linkedin.com/' 
-             + APIVersion 
-             +'/' + request_path 
+  var path = settings.restBase
+             + request_path
              + JSONformat
              +'&oauth2_access_token=' + accessToken;
 
