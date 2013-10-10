@@ -55,13 +55,6 @@ module.exports = function(){
     res.redirect('/');
   });
 
-  /*app.get('/auth', function (req, res) {
-  // the first time will redirect to linkedin
-    var linkedin = require('cloud/modules/linkedin/linkedin');
-    linkedin.initialize(req, res);
-  
-  });*/
-
   app.get('/debug', function(req, res) {
     res.cookie('name2', 'val3');
     res.send('Success');
@@ -73,118 +66,29 @@ module.exports = function(){
 
   app.get('/auth', function (req, res) {
   // the first time will redirect to linkedin
-  var linkedin = require('cloud/modules/linkedin/linkedin');
-    if (req.url.indexOf('auth')) {
-    console.log('init');
-    //redirectForAuth(req, res);
+    var linkedin = require('cloud/modules/linkedin/linkedin');
+    console.log('initialize');
 
-    // Check to see if authorization for end user has already been made and skip Oauth dance
-    var cookies = {};
-    req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
-      var parts = cookie.split('=');
-      cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
-    });
-
+    var cookies = linkedin.getCookies(req);
     console.log(cookies);
-    
-    // If we have the access_token in the cookie skip the Oauth Dance and go straight to Step 3
-    if (cookies['LIAccess_token']){
-      // STEP 3 - Get LinkedIn API Data
-      // console.log("we have the cookie value" + cookies['LIAccess_token']);
-      //OauthStep3(req, response, cookies['LIAccess_token'], APICalls['peopleSearchWithKeywords']);
-      console.log('exec step 3');
 
+
+    if (cookies['LIAccess_token']) {
+      console.log('exec step 3');
     }
     else {
+      var url= require('url');
       var queryObject = url.parse(req.url, true).query;
-
       if (!queryObject.code) {
-        // STEP 1 - If this is the first run send them to LinkedIn for Auth
-        //redirectForAuth(req, res);
+        console.log('STEP 1');
         console.log('REDIRECT FOR AUTH');
         linkedin.getAuthorizationCode(req, res);
-      } else {
-        console.log('Post Auth');
-        // STEP 2 - If they have given consent and are at the callback do the final token request
-        //linkedin.callBackPostAuth(req, res, queryObject.code);
-        var path = 'https://api.linkedin.com/uas/oauth2/accessToken?grant_type=authorization_code&code=' + queryObject.code + '&redirect_uri=http://resutext.parseapp.com/auth&client_id=v0wh3ponihe9&client_secret=UmYOhdOAg8aS7dQI';
-        Parse.Cloud.httpRequest({
-          method: "POST",
-          url: path,
-          success: function(httpResponse) {
-            console.log("status: ");
-            console.log(httpResponse.status);
-            console.log("headers: ");
-            console.log(httpResponse.headers);
-            console.log("text: ");
-            console.log(httpResponse.text);
-            console.log("data: ");
-            console.log(httpResponse.data);
-            //console.log(httpResponse);
-//TODO            var expiresIn 
-            var accessToken = httpResponse.data.access_token;
-            console.log(accessToken);
-            if (accessToken) {
-              console.log('Set Cookie');
-              res.cookie('LIAccess_token', accessToken);
-
-              console.log("Step3");
-              var APICall = 'people/~:(first-name,last-name,headline,picture-url)';
-              console.log(APICall);
-              if (APICall.indexOf("?")>=0) {
-                var JSONformat="&format=json";
-              } else {
-                var JSONformat="?format=json";
-              }
-
-              console.log(JSONformat);
-
-              var profPath = 'https://api.linkedin.com/v1/' + APICall + JSONformat + '&oauth2_access_token=' + accessToken;
-              console.log(profPath);
-              Parse.Cloud.httpRequest({
-                method: "GET",
-                url: profPath,
-                success: function(httpResponse) {
-                  console.log("status: ");
-                  console.log(httpResponse.status);
-                  console.log("headers: ");
-                  console.log(httpResponse.headers);
-                  console.log("text: ");
-                  console.log(httpResponse.text);
-                  console.log("data: ");
-                  console.log(httpResponse.data);
-                  res.send('Success');
-                },
-                error: function(httpResponse) {
-                  console.log("status: ");
-                  console.log(httpResponse.status);
-                  console.log("headers: ");
-                  console.log(httpResponse.headers);
-                  console.log("text: ");
-                  console.log(httpResponse.text);
-                  console.log("data: ");
-                  console.log(httpResponse.data);
-                }
-              });
-            }
-            
-          },
-          error: function(httpResponse) {
-            console.log("status: ");
-            console.log(httpResponse.status);
-            console.log("headers: ");
-            console.log(httpResponse.headers);
-            console.log("text: ");
-            console.log(httpResponse.text);
-            console.log("data: ");
-            console.log(httpResponse.data);
-            //console.log(httpResponse);
-          }
-        });
+      }
+      else {
+        console.log('STEP2');
+        linkedin.getAccessToken(req, res, queryObject.code);
       }
     }
-  }
-
   });
 
   return app;

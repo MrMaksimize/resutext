@@ -1,6 +1,6 @@
 var http = require('http');
 var url= require('url');
-var querystring= require('qs');
+var qs = require('qs');
 
 var APIKey = 'v0wh3ponihe9';
 var APIKeySecret = 'UmYOhdOAg8aS7dQI';
@@ -13,6 +13,7 @@ var paramAppender = "?";
 var hasParameters = /\/*\?/i;
 var rest_base = 'http://api.linkedin.com/v1';
 var client = {};
+
 
 var randomState = function(howLong) {
   howLong=parseInt(howLong);
@@ -29,6 +30,17 @@ var randomState = function(howLong) {
   return text;
 }
 
+var logResponse = function(httpResponse) {
+  console.log("status: ");
+  console.log(httpResponse.status);
+  console.log("headers: ");
+  console.log(httpResponse.headers);
+  console.log("text: ");
+  console.log(httpResponse.text);
+  console.log("data: ");
+  console.log(httpResponse.data);
+}
+
 exports.initialize = function(api_key, api_key_secret, callback_url, api_scope) {
   APIKey = api_key;
   APIKeySecret = api_key_secret;
@@ -36,12 +48,30 @@ exports.initialize = function(api_key, api_key_secret, callback_url, api_scope) 
   callbackURL = callback_url;
 }
 
+exports.getCookies = function(req) {
+  var cookies = {};
+  req.headers.cookie && req.headers.cookie.split(';').forEach(function( cookie ) {
+    var parts = cookie.split('=');
+    cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
+  });
+
+  return cookies;
+}
+
 exports.getAuthorizationCode = function (req, res) {
-  var location = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=' 
+  var location = 'https://www.linkedin.com/uas/oauth2/authorization';
+  location = location + '?' + qs.stringify({
+    'response_type': 'code',
+    'client_id': APIKey,
+    'scope': APIScope,
+    'state': 'RNDM_' + randomState(18),
+    'redirect_uri': callbackURL
+  });
+  /*var location = 'https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=' 
                   + APIKey + '&scope=' 
                   + APIScope + '&state=RNDM_' 
                   + randomState(18) + '&redirect_uri=' 
-                  + callbackURL;
+                  + callbackURL;*/
   res.redirect(location);
 }
 
@@ -60,88 +90,50 @@ exports.getAccessToken = function(req, res, authCode) {
       redirect_uri: 'http://resutext.parseapp.com/auth',
       client_id: 'v0wh3ponihe9',
       client_secret: 'UmYOhdOAg8aS7dQI'
-    }
+    },
     success: function(httpResponse) {
-        console.log("status: ");
-        console.log(httpResponse.status);
-        console.log("headers: ");
-        console.log(httpResponse.headers);
-        console.log("text: ");
-        console.log(httpResponse.text);
-        console.log("data: ");
-        console.log(httpResponse.data);
+      logResponse(httpResponse);
 
-        var accessToken = httpResponse.data.access_token;
-        console.log(accessToken);
-        if (accessToken) {
-          console.log('Set Cookie');
-          res.cookie('LIAccess_token', accessToken);
-        }
-    }
+      var accessToken = httpResponse.data.access_token;
+      console.log(accessToken);
+      if (accessToken) {
+        console.log('Set Cookie');
+        res.cookie('LIAccess_token', accessToken);
+        res.redirect('https://resutext.parseapp.com');
+      }
+    },
     error: function(httpResponse) {
-            console.log("status: ");
-            console.log(httpResponse.status);
-            console.log("headers: ");
-            console.log(httpResponse.headers);
-            console.log("text: ");
-            console.log(httpResponse.text);
-            console.log("data: ");
-            console.log(httpResponse.data);
-            //console.log(httpResponse);
+      logResponse(httpResponse);
     }
   });
 }
 
 exports.executeRequest = function(access_token, request_path, callbackFunction) {
-  if (APICall.indexOf("?")>=0) {
+  if (request_path.indexOf("?")>=0) {
     var JSONformat="&format=json";
   } else {
     var JSONformat="?format=json";
   }
   
-  var path = 'https://api.linkedin.com/' + APIVersion +'/' + APICallPath
-}
-
-exports.step3 = function(req, res, access_token, APICall, callback) {
-  console.log("Step3");
-
-  if (APICall.indexOf("?")>=0) {
-    var JSONformat="&format=json";
-  } else {
-    var JSONformat="?format=json";
-  }
-
-  var APICallPath = APICalls[APICall];
-
-  var path = 'https://api.linkedin.com/' + APIVersion +'/' + APICallPath + JSONformat + '&oauth2_access_token=' + access_token;
+  var path = 'https://api.linkedin.com/' 
+             + APIVersion 
+             +'/' + request_path 
+             + JSONformat
+             +'&oauth2_access_token=' + accessToken;
 
   Parse.Cloud.httpRequest({
-    method: "POST",
+    method: "GET",
     url: path,
     success: function(httpResponse) {
-      console.log("status: ");
-      console.log(httpResponse.status);
-      console.log("headers: ");
-      console.log(httpResponse.headers);
-      console.log("text: ");
-      console.log(httpResponse.text);
-      console.log("data: ");
-      console.log(httpResponse.data);
+      logResponse(httpResponse);
+      res.send('Success');
     },
     error: function(httpResponse) {
-      console.log("status: ");
-      console.log(httpResponse.status);
-      console.log("headers: ");
-      console.log(httpResponse.headers);
-      console.log("text: ");
-      console.log(httpResponse.text);
-      console.log("data: ");
-      console.log(httpResponse.data);
+        logResponse(httpResponse);
     }
   });
-
-
 }
+
 
 
 
