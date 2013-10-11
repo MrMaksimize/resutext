@@ -24,7 +24,7 @@ exports.uploadResume = function(resume, response) {
     response.error("Invalid file");
     return;
   }
-    
+  
   var file = fileUploadControl.files[0];
   var parseFile = new Parse.File(fileName, file);
   parseFile.save().then(function() {
@@ -33,18 +33,10 @@ exports.uploadResume = function(resume, response) {
     resumeObj.set("resume", parseFile);
     resumeObj.set("user", currentUser);
     resumeObj.save().then(function() {
-      response.success();
+    response.success();
     });
     
   }, function(error) {
     response.error("Could not save file");
   });
-}
-
-exports.retrieveResume = function(response) {
-  //var profilePhoto = profile.get("photoFile");
-  //$("profileImg")[0].src = profilePhoto.url();
-  //Parse.Cloud.httpRequest({ url: profilePhoto.url() }).then(function(response) {
-    // The file contents are in response.buffer.
-  //});
 }

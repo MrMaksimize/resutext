@@ -33,8 +33,8 @@ Parse.Cloud.define("uploadResume", function(request, response) {
   console.log("---");
 
   resume_handler.uploadResume(request, response);
-
 });
+
 
 
 // -- Factory Expert -- //
