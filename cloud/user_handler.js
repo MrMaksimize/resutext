@@ -26,18 +26,34 @@ exports.findUserWithPhone = function(phone) {
 
   var NO_USER_MSG = global.ERROR_MESSAGES().no_usr_phone_found;
   
-  if (phone_handler.findPhoneNumbers(phone) < 1)  Parse.Promise.error(NO_USER_MSG);
+  if (phone_handler.findPhoneNumbers(phone) < 1)  return null;
 
   var query = new Parse.Query(Parse.User);
   query.equalTo("phone", phone);
+  
+  query.find( function(users) {
+    if (users.length < 1) {
+      return null;
+    }
+    return users[0];
+  });
+
+  /*
+  if (phone_handler.findPhoneNumbers(phone) < 1)  return Parse.Promise.error(NO_USER_MSG);
+
+  var query = new Parse.Query(Parse.User);
+  query.equalTo("phone", phone);
+  
   return query.find( function(users) {
     if (users.length < 1) {
       return Parse.Promise.error(NO_USER_MSG);
     }
     return users[0];
-  }, function(error) {
+  },
+  function(error) {
     return Parse.Promise.error(NO_USER_MSG);
   });
+  */
 }
 
 
@@ -52,7 +68,7 @@ exports.findUserWithEmail = function(email) {
 
   var NO_USER_MSG = global.ERROR_MESSAGES().no_usr_email_found;
   
-  if (email_handler.findEmailAddresses(email) < 1)  Parse.Promise.error(NO_USER_MSG);
+  if (email_handler.findEmailAddresses(email) < 1)  return Parse.Promise.error(NO_USER_MSG);
 
   var query = new Parse.Query(Parse.User);
   query.equalTo("email", email);
@@ -61,7 +77,8 @@ exports.findUserWithEmail = function(email) {
       return Parse.Promise.error(NO_USER_MSG);
     }
     return users[0];
-  }, function(error) {
+  },
+  function(error) {
     return Parse.Promise.error(NO_USER_MSG);
   });
 }

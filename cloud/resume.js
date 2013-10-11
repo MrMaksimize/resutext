@@ -5,20 +5,11 @@ var global = require('cloud/globals.js');
 
 // -- Handlers -- //
 
-exports.uploadResume = function(resume, response) {
+exports.uploadResumeForUser = function(user) {
+
+  var NO_SAVE = global.ERROR_MESSAGES().could_not_save;  
 
   /*
-   *Testing dummy
-   *
-    var base64 = "V29ya2luZyBhdCBQYXJzZSBpcyBncmVhdCE=";
-    var file = new Parse.File("myfile.txt", { base64: base64 });
-  */
-  var currentUser = Parse.User.current();
-  if (!currentUser) {
-    response.error("User currently not logged in");
-    return;
-  }
-
   var fileUploadControl = $("#resumeFile")[0];
   if (fileUploadControl.files.length < 1) {
     response.error("Invalid file");
@@ -27,16 +18,39 @@ exports.uploadResume = function(resume, response) {
   
   var file = fileUploadControl.files[0];
   var parseFile = new Parse.File(fileName, file);
-  parseFile.save().then(function() {
-
+  */
+  
+  // Testing file
+  var base64 = "V29ya2luZyBhdCBQYXJzZSBpcyBncmVhdCE=";
+  var parseFile = new Parse.File("myfile.txt", { base64: base64 });
+  
+  return parseFile.save().then(function() {
+    
     var resumeObj = new Parse.Object("Resume");
     resumeObj.set("resume", parseFile);
-    resumeObj.set("user", currentUser);
-    resumeObj.save().then(function() {
-    response.success();
+    resumeObj.set("user", user[0]);
+    return resumeObj.save().then(function() {
+      return "Success!";
+    },
+    function(error) {
+      return Parse.Promise.error(NO_SAVE);
     });
-    
-  }, function(error) {
-    response.error("Could not save file");
+  
+  });
+}
+
+exports.retrieveResumeForUser = function(user) {
+  
+  var NO_RESUME_MSG = global.ERROR_MESSAGES().no_resume_found;
+  
+  var query = new Parse.Query("Resume");
+  query.equalTo("user", user[0]);
+
+  return query.find( function(resumes) {
+    if (resumes.length < 1) return Parse.Promise.error(NO_RESUME_MSG);
+    return resumes[0];
+  },
+  function(error) {
+    return Parse.Promise.error(NO_RESUME_MSG);
   });
 }
