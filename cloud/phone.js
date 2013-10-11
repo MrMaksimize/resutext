@@ -11,6 +11,8 @@ Twilio.initialize(global.TWILIO_DATA().accountSid, global.TWILIO_DATA().authToke
 // Finding phone numbers in strings
 exports.findPhoneNumbers = function(messageStr) {
   var phoneNumbersArray = [];
+  if (messageStr.length < 10) return phoneNumbersArray;
+  
   phoneNumbersArray = messageStr.match(/\+?1?[0-9]{3}[\- ]?[0-9]{3}[\- ]?[0-9]{4}/);
   return phoneNumbersArray;
 }
@@ -27,10 +29,18 @@ exports.receiveSMS = function(sms_data, response) {
   // Getting the sender number
   if (sms_data.From && typeof sms_data.From != 'undefined') 
     from = sms_data.From;
+  else {
+    response.error();
+    return;
+  }
 
   // Getting the sms body
   if (sms_data.Body && typeof sms_data.Body != 'undefined') 
     msg = sms_data.Body;
+  else {
+    response.error();
+    return;
+  }
   
   response.success();
   
