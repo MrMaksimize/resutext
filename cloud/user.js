@@ -72,8 +72,8 @@ module.exports = function(){
       APIKeySecret: 'UmYOhdOAg8aS7dQI',
       callbackURL: 'http://resutext.parseapp.com/auth',
       redirectPostAuth: 'http://resutext.parseapp.com',
-      APIScope: 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages',
-      accessToken: '' // Access token can be pulled from DB?
+      APIScope: 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages'
+      //accessToken: '' // Access token can be pulled from DB?
     });
    
     linkedInClient.authenticate(req, res);

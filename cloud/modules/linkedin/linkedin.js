@@ -42,10 +42,13 @@ var logResponse = function(httpResponse) {
 
 // exports is an object that is returned as a result of a require call.
 exports.initialize = function(newSettings) {
+  console.log(settings);
+  console.log(newSettings);
   settings = _.extend(settings, newSettings);
-  if (!settings.accessToken) {
+  /*if (!settings.accessToken) {
     settings.accessToken = module.exports.getAcessTokenFromCookies;
-  }
+  }*/
+  console.log(settings);
 }
 
 exports.authenticate = function(req, res) {
@@ -76,7 +79,7 @@ exports.getAcessTokenFromCookies = function(req) {
     var parts = cookie.split('=');
     cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
   });
-  return cookies['LIAccess_token'] ? cookies['LIAccess_token'] : null;
+  return cookies['LIAccess_token'].length > 0 ? cookies['LIAccess_token'] : null;
 }
 
 exports.getAuthorizationCode = function (req, res) {
