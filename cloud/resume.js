@@ -10,6 +10,9 @@ exports.uploadResumeForUser = function(user) {
   var NO_SAVE = global.ERROR_MESSAGES().could_not_save;  
 
   /*
+   * This is what the code should look like to
+   * grab a file from express form
+   * 
   var fileUploadControl = $("#resumeFile")[0];
   if (fileUploadControl.files.length < 1) {
     response.error("Invalid file");
@@ -28,7 +31,7 @@ exports.uploadResumeForUser = function(user) {
     
     var resumeObj = new Parse.Object("Resume");
     resumeObj.set("resume", parseFile);
-    resumeObj.set("user", user[0]);
+    resumeObj.set("user", user);
     return resumeObj.save().then(function() {
       return "Success!";
     },
@@ -44,7 +47,7 @@ exports.retrieveResumeForUser = function(user) {
   var NO_RESUME_MSG = global.ERROR_MESSAGES().no_resume_found;
   
   var query = new Parse.Query("Resume");
-  query.equalTo("user", user[0]);
+  query.equalTo("user", user);
 
   return query.find( function(resumes) {
     if (resumes.length < 1) return Parse.Promise.error(NO_RESUME_MSG);

@@ -4,7 +4,6 @@ var global = require('cloud/globals.js');
 
 // -- Experts -- //
 var phone_handler = require('cloud/phone.js');
-var user_handler = require('cloud/user_handler.js');
 var expert_handler = require('cloud/expert.js');
 var resume_handler = require('cloud/resume.js');
 
