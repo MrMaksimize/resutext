@@ -63,29 +63,21 @@ module.exports = function(){
 
   app.get('/auth', function (req, res) {
   // the first time will redirect to linkedin
-    var linkedin = require('cloud/modules/linkedin/linkedin');
+    var linkedInClient = require('cloud/modules/linkedin/linkedin');
+    
     console.log('initialize');
-
-    var cookies = linkedin.getCookies(req);
-    console.log(cookies);
-
-
-    if (cookies['LIAccess_token']) {
-      console.log('exec step 3');
-    }
-    else {
-      var url= require('url');
-      var queryObject = url.parse(req.url, true).query;
-      if (!queryObject.code) {
-        console.log('STEP 1');
-        console.log('REDIRECT FOR AUTH');
-        linkedin.getAuthorizationCode(req, res);
-      }
-      else {
-        console.log('STEP2');
-        linkedin.getAccessToken(req, res, queryObject.code);
-      }
-    }
+    
+    linkedInClient.initialize({
+      APIKey: 'v0wh3ponihe9',
+      APIKeySecret: 'UmYOhdOAg8aS7dQI',
+      callbackURL: 'http://resutext.parseapp.com/auth',
+      redirectPostAuth: 'http://resutext.parseapp.com',
+      APIScope: 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages',
+      accessToken: '' // Access token can be pulled from DB?
+    });
+   
+    linkedInClient.authenticate(req, res);
+    
   });
 
   return app;
