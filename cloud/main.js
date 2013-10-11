@@ -32,59 +32,17 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 Parse.Cloud.define("uploadResume", function(request, response) {
   console.log("---");
 
-  user_handler.findUserWithPhone("3128602305").then(function(user) {
-    
-    resume_handler.uploadResumeForUser(user).then(function() {
-      response.success("Saved resume");
-    },
-    function() {
-      response.error("Could not save resume");
-    });
-  }, function(error) {
-    response.error("Could not log in");
-  });
-
-  /*
-  var currentUser = Parse.User.current();
-  if (!currentUser) {
+  var user = Parse.User.current();
+  if (!user) {
     response.error("User currently not logged in");
   }
-  resume_handler.uploadResume(currentUser);
-  */
-});
-
-Parse.Cloud.define("sendResume", function(request, response) {
-  console.log("---");
-  
-  
-  var user = user_handler.findUserWithPhone("3128602305");
-  console.log(user);
-
-  resume_handler.retrieveResumeForUser(user).then(function(resume) {
-    console.log(resume);
-    response.success("Got resume!");
-  },
-  function(error) {
-    response.error("Could not get the resume");
-  });
-  
-  /*
-  user_handler.findUserWithPhone("3128602305").then(function(user) {
-
-    resume_handler.retrieveResumeForUser(user).then(function(resume) {
-      console.log(resume);
-      response.success("Got resume!");
-    },
-    function(error) {
-      response.error("Could not get the resume");
-    });
     
+  resume_handler.uploadResumeForUser(user).then(function() {
+    response.success("Saved resume");
   },
-  
-  function(error) {
-    response.error("Could not find user");
+  function() {
+    response.error("Could not save resume");
   });
-  */
 });
 
 
