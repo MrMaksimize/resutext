@@ -1,3 +1,4 @@
+
 // Provides endpoints for user signup and login
 
 module.exports = function(){
@@ -57,5 +58,3 @@ module.exports = function(){
 
   return app;
 }();
-
-
