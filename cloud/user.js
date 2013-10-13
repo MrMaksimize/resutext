@@ -76,7 +76,14 @@ module.exports = function(){
       //accessToken: '' // Access token can be pulled from DB?
     });
    
-    linkedInClient.authenticate(req, res);
+    linkedInClient.authenticate(req, res, function(response) {
+      console.log('success on authenticate');
+      linkedInClient.getCurrentUserProfile(function(profileResponse) {
+        console.log('prof response');
+        console.log(profileResponse);
+        res.redirect('http://resutext.parseapp.com');
+      });
+    });
     
   });
 

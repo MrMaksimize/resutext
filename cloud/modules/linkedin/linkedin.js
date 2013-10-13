@@ -42,16 +42,13 @@ var logResponse = function(httpResponse) {
 
 // exports is an object that is returned as a result of a require call.
 exports.initialize = function(newSettings) {
-  console.log(settings);
-  console.log(newSettings);
   settings = _.extend(settings, newSettings);
-  /*if (!settings.accessToken) {
-    settings.accessToken = module.exports.getAcessTokenFromCookies;
-  }*/
-  console.log(settings);
 }
 
-exports.authenticate = function(req, res) {
+exports.authenticate = function(req, res, successCallback, failureCallback) {
+  if (!settings.accessToken) {
+    settings.accessToken = module.exports.getAcessTokenFromCookies(req);
+  }
   if (!settings.accessToken) {
     var queryObject = url.parse(req.url, true).query;
     if (!queryObject.code) {
@@ -61,11 +58,13 @@ exports.authenticate = function(req, res) {
     }
     else {
       console.log('STEP2');
-      module.exports.getAccessToken(req, res, queryObject.code);
+      module.exports.getAccessToken(req, res, queryObject.code, successCallback, failureCallback);
     }
   }
   else {
-    res.redirect(settings.redirectPostAuth);
+    console.log('have access token');
+    //res.redirect(settings.redirectPostAuth);
+    successCallback(res);
   }
 }
 
@@ -79,7 +78,7 @@ exports.getAcessTokenFromCookies = function(req) {
     var parts = cookie.split('=');
     cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
   });
-  return cookies['LIAccess_token'].length > 0 ? cookies['LIAccess_token'] : null;
+  return cookies['LIAccess_token'] ? cookies['LIAccess_token'] : null;
 }
 
 exports.getAuthorizationCode = function (req, res) {
@@ -95,7 +94,7 @@ exports.getAuthorizationCode = function (req, res) {
 }
 
 
-exports.getAccessToken = function(req, res, authCode) {
+exports.getAccessToken = function(req, res, authCode, successCallback, failureCallback) {
   console.log("Get Access Token");
 
   console.log('Post Auth');
@@ -117,11 +116,14 @@ exports.getAccessToken = function(req, res, authCode) {
         settings.accessToken = httpResponse.data.access_token;
         console.log('Set Cookie');
         res.cookie('LIAccess_token', settings.accessToken);
-        res.redirect(settings.redirectPostAuth);
+
+        //res.redirect(settings.redirectPostAuth);
+        successCallback(res);
       }
     },
     error: function(httpResponse) {
       logResponse(httpResponse);
+      failureCallback(res);
     }
   });
 }
@@ -133,9 +135,9 @@ exports.executeRequest = function(request_path, callbackFunction) {
     var JSONformat="?format=json";
   }
   var path = settings.restBase
-             + request_path
+             + '/' + request_path
              + JSONformat
-             +'&oauth2_access_token=' + accessToken;
+             +'&oauth2_access_token=' + settings.accessToken;
 
   Parse.Cloud.httpRequest({
     method: "GET",
@@ -143,12 +145,15 @@ exports.executeRequest = function(request_path, callbackFunction) {
     success: function(httpResponse) {
       logResponse(httpResponse);
       callbackFunction(httpResponse);
-      res.send('Success');
     },
     error: function(httpResponse) {
         logResponse(httpResponse);
     }
   });
+}
+
+exports.getCurrentUserProfile = function(successCallback) {
+  module.exports.executeRequest('people/~:(first-name,last-name,headline,picture-url)', successCallback);
 }
 
 
