@@ -1,2 +1,4 @@
-config/global.json
+config
+config/*
+public/index.html
 .DS_Store
