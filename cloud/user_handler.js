@@ -28,17 +28,6 @@ exports.findUserWithPhone = function(phone) {
   
   if (phone_handler.findPhoneNumbers(phone) < 1)  return null;
 
-  var query = new Parse.Query(Parse.User);
-  query.equalTo("phone", phone);
-  
-  query.find( function(users) {
-    if (users.length < 1) {
-      return null;
-    }
-    return users[0];
-  });
-
-  /*
   if (phone_handler.findPhoneNumbers(phone) < 1)  return Parse.Promise.error(NO_USER_MSG);
 
   var query = new Parse.Query(Parse.User);
@@ -53,7 +42,6 @@ exports.findUserWithPhone = function(phone) {
   function(error) {
     return Parse.Promise.error(NO_USER_MSG);
   });
-  */
 }
 
 

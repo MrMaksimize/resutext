@@ -14,16 +14,34 @@ var resume_handler = require('cloud/resume.js');
 Parse.Cloud.define("incomingSMS", function(request, response) {
   console.log("---");
 
-  var sms = phone_handler.receiveSMS(request.params, response);
-  if (sms) console.log("Received: " + sms);
-  else console.log("Received: " + "Invalid SMS");
-
-  var actions = expert_handler.parseSMS(sms.msg, sms.from);
-  if (actions) console.log("Got " + actions.length + " action(s)");
-  else console.log("Got: " + "Invalid Actions");
-
-  var result = performActions(actions);
-
+  if (request.params.From && typeof request.params.From != 'undefined') {
+    
+    var findUser = user_handler.findUserWithPhone(request.params.From);
+    
+    findUser.then(function(user) {
+      
+      if (!user || user == null || user.length < 1) {
+        response.error("Could not find user");
+        return;
+      }
+  
+      var sms = phone_handler.receiveSMS(request.params, response);
+      if (sms) console.log("Received: " + sms);
+      else console.log("Received: " + "Invalid SMS");
+    
+      var actions = expert_handler.parseSMS(sms.msg, sms.from);
+      if (actions) console.log("Got " + actions.length + " action(s)");
+      else console.log("Got: " + "Invalid Actions");
+    
+      var result = performActions(actions);
+      
+    }, function(error) {
+      response.error("Could not find user");
+    });
+  }
+  else {
+    response.error("SMS received in a weird way, phone was invalid");
+  }
 });
 
 
@@ -56,20 +74,9 @@ Parse.Cloud.define("uploadResume", function(request, response) {
 Parse.Cloud.define("sendResume", function(request, response) {
   console.log("---");
   
-  
-  var user = user_handler.findUserWithPhone("3128602305");
-  console.log(user);
+  var findUser = user_handler.findUserWithPhone("3128602305");
 
-  resume_handler.retrieveResumeForUser(user).then(function(resume) {
-    console.log(resume);
-    response.success("Got resume!");
-  },
-  function(error) {
-    response.error("Could not get the resume");
-  });
-  
-  /*
-  user_handler.findUserWithPhone("3128602305").then(function(user) {
+  findUser.then(function(user) {
 
     resume_handler.retrieveResumeForUser(user).then(function(resume) {
       console.log(resume);
@@ -84,7 +91,7 @@ Parse.Cloud.define("sendResume", function(request, response) {
   function(error) {
     response.error("Could not find user");
   });
-  */
+  
 });
 
 
