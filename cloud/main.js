@@ -50,7 +50,9 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 Parse.Cloud.define("uploadResume", function(request, response) {
   console.log("---");
 
-  user_handler.findUserWithPhone("3128602305").then(function(user) {
+  var findUser = user_handler.findUserWithPhone("3128602305");
+
+  findUser.then(function(user) {
     
     resume_handler.uploadResumeForUser(user).then(function() {
       response.success("Saved resume");
