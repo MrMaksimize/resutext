@@ -4,6 +4,7 @@ var global = require('cloud/globals.js');
 
 // -- Experts -- //
 var phone_handler = require('cloud/phone.js');
+var user_handler = require('cloud/user_handler.js');
 var expert_handler = require('cloud/expert.js');
 var resume_handler = require('cloud/resume.js');
 
@@ -49,12 +50,6 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 Parse.Cloud.define("uploadResume", function(request, response) {
   console.log("---");
 
-<<<<<<< HEAD
-  var user = Parse.User.current();
-  if (!user) {
-    response.error("User currently not logged in");
-  }
-=======
   var findUser = user_handler.findUserWithPhone("3128602305");
 
   findUser.then(function(user) {
@@ -92,18 +87,13 @@ Parse.Cloud.define("sendResume", function(request, response) {
     function(error) {
       response.error("Could not get the resume");
     });
->>>>>>> resume_retrieve_dev
     
-  resume_handler.uploadResumeForUser(user).then(function() {
-    response.success("Saved resume");
   },
-  function() {
-    response.error("Could not save resume");
-  });
-<<<<<<< HEAD
-=======
   
->>>>>>> resume_retrieve_dev
+  function(error) {
+    response.error("Could not find user");
+  });
+  
 });
 
 
