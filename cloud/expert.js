@@ -40,6 +40,37 @@ exports.parseSMS = function(smsMsg, sender) {
       });
     }
   }
+  
+  /*
+  // Sending Resumes to someone via Email
+  if (smsMsg.search("@") > -1) {
+    var emails = email_handler.findEmailAddresses(smsMsg);
+
+    if (emails && emails.length > 0) {
+      
+      var findUser = user_handler.findUserWithPhone(sender);
+
+      findUser.then(function(user) {
+    
+	resume_handler.retrieveResumeForUser(user).then(function(resume) {
+	  console.log("Resume: ");
+	  console.log(resume);
+  
+	  // + resume[0]["resume"]["url"]
+	  emails.forEach(function(email) {
+	    var email = email_handler.makeEMAIL("noreply@resutext.com", email, "Resutext", "Thanks brah, here's the resume!");
+	    actions.push( {type: "email", object: email} );
+	  });
+      
+	},
+	function(error) {
+	  response.error("Could not get the resume");
+	});
+	
+      });
+    }
+  }
+  */
 
   // Sending Resumes to somone via SMS
   if (smsMsg.search("resume") > -1) {
