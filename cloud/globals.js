@@ -23,6 +23,14 @@ exports.ERROR_MESSAGES = function() {
 
 // -- Twilio Config -- //
 exports.TWILIO_DATA = function() {
+  if (true) { //testing
+    return {
+      number : "+13128001571",
+      accountSid : "ACebbfe62bbc3bc1d53a46534995bcffa6",
+      authToken : "fd850621c44761fd79440191a00d9b1d"
+    };
+  }
+  
   return {
     number : "+13128001571",
     accountSid : "AC5a2be84ac3f138f11d48e040c7de698a",

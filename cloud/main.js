@@ -1,6 +1,7 @@
 
 // -- Global Vars -- //
 var global = require('cloud/globals.js');
+require('cloud/testing.js');
 
 // -- Experts -- //
 var phone_handler = require('cloud/phone.js');
