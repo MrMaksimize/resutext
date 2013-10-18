@@ -2,6 +2,7 @@ var http = require('http');
 var url = require('url');
 var qs = require('qs');
 var _ = require('underscore');
+var crypto = require('crypto');
 
 var settings = {
   APIKey: 'v0wh3ponihe9',
@@ -43,6 +44,10 @@ var logResponse = function(httpResponse) {
 // exports is an object that is returned as a result of a require call.
 exports.initialize = function(newSettings) {
   settings = _.extend(settings, newSettings);
+}
+
+exports.getCurrentSettings = function() {
+  return settings;
 }
 
 exports.authenticate = function(req, res, successCallback, failureCallback) {
@@ -116,8 +121,6 @@ exports.getAccessToken = function(req, res, authCode, successCallback, failureCa
         settings.accessToken = httpResponse.data.access_token;
         console.log('Set Cookie');
         res.cookie('LIAccess_token', settings.accessToken);
-
-        //res.redirect(settings.redirectPostAuth);
         successCallback(res);
       }
     },
@@ -126,6 +129,10 @@ exports.getAccessToken = function(req, res, authCode, successCallback, failureCa
       failureCallback(res);
     }
   });
+}
+
+exports.getParsePasswordFromID = function(profileID, salt) {
+  return crypto.createHash('md5').update(profileID + 'LiAccess' + salt).digest('hex');
 }
 
 exports.executeRequest = function(request_path, callbackFunction) {
@@ -153,7 +160,7 @@ exports.executeRequest = function(request_path, callbackFunction) {
 }
 
 exports.getCurrentUserProfile = function(successCallback) {
-  module.exports.executeRequest('people/~:(first-name,last-name,headline,picture-url)', successCallback);
+  module.exports.executeRequest('people/~:(first-name,last-name,headline,id,email-address)', successCallback);
 }
 
 
@@ -205,7 +212,7 @@ exports.initialize2 = function(req, res) {
       var parts = cookie.split('=');
       cookies[ parts[ 0 ].trim() ] = ( parts[ 1 ] || '' ).trim();
     });
-    
+
     // If we have the access_token in the cookie skip the Oauth Dance and go straight to Step 3
     if (cookies['LIAccess_token']){
       // STEP 3 - Get LinkedIn API Data
