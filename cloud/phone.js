@@ -22,7 +22,7 @@ exports.filterPhone = function(phone) {
   var filteredPhone = phone.replace("-","");
   var filteredPhone = phone.replace("+","");
 
-  if (filteredPhone[0] == 1) filteredPhone.substring(1,filteredPhone.length);
+  if (filteredPhone[0] == '1') filteredPhone = filteredPhone.substring(1,filteredPhone.length);
   if (filteredPhone.length != 10) throw InvalidPhoneException("Less than 10 digits");
   
   return filteredPhone;

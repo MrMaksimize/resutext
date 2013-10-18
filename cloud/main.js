@@ -17,7 +17,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
   if (request.params.From && typeof request.params.From != 'undefined') {
     
     request.params.From = phone_handler.filterPhone(request.params.From);
-
+  
     var findUser = user_handler.findUserWithPhone(request.params.From);
     findUser.then(function(user) {
       
@@ -35,12 +35,14 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
       else console.log("Got: " + "Invalid Actions");
     
       var result = performActions(actions);
+      response.success("Successfully handled user sms");
       
     }, function(error) {
       response.error("Could not find user");
     });
   }
   else {
+    console.log("Some problem occured");
     response.error("SMS received in a weird way, phone was invalid");
   }
 });
