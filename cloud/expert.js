@@ -28,7 +28,7 @@ exports.parseSMS = function(smsMsg, sender) {
   smsMsg = smsMsg.toLowerCase();
   
   var from = global.TWILIO_DATA().number;
-
+  
   // Sending Resumes to someone via Email
   if (smsMsg.search("@") > -1) {
     var emails = email_handler.findEmailAddresses(smsMsg);
@@ -71,7 +71,7 @@ exports.parseSMS = function(smsMsg, sender) {
     }
   }
   */
-
+  
   // Sending Resumes to somone via SMS
   if (smsMsg.search("resume") > -1) {
     var phones = phone_handler.findPhoneNumbers(smsMsg);
@@ -83,14 +83,15 @@ exports.parseSMS = function(smsMsg, sender) {
       });
     }
   }
-
+  
   // Nothing to do, must be an error
   if (actions.length < 1) {
+    
     var sms = phone_handler.makeSMS(from, sender, "Sry man, I didn't get that ):");
     actions.push( {type: "sms", object: sms} );
   } 
   // Otherwise, send a confirmation sms
-  else {
+  else {    
     var sendSMS = false;
     var sendEMAIL = false;
 
@@ -106,7 +107,7 @@ exports.parseSMS = function(smsMsg, sender) {
 
     actions.push( {type: "sms", object: sms} );
   }
-
+  
   // Send it all!
   return actions;
 }

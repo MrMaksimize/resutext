@@ -16,8 +16,9 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 
   if (request.params.From && typeof request.params.From != 'undefined') {
     
+    request.params.From = phone_handler.filterPhone(request.params.From);
+
     var findUser = user_handler.findUserWithPhone(request.params.From);
-    
     findUser.then(function(user) {
       
       if (!user || user == null || user.length < 1) {
@@ -25,7 +26,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
         return;
       }
   
-      var sms = phone_handler.receiveSMS(request.params, response);
+      var sms = phone_handler.receiveSMS(request.params.From, request.params.Body, response);
       if (sms) console.log("Received: " + sms);
       else console.log("Received: " + "Invalid SMS");
     

@@ -6,6 +6,7 @@ var global = require('cloud/globals.js');
 var Twilio = require('twilio');
 Twilio.initialize(global.TWILIO_DATA().accountSid, global.TWILIO_DATA().authToken);
 
+function InvalidPhoneException() {}
 
 // -- Utilities -- //
 // Finding phone numbers in strings
@@ -17,30 +18,33 @@ exports.findPhoneNumbers = function(messageStr) {
   return phoneNumbersArray;
 }
 
+exports.filterPhone = function(phone) {
+  var filteredPhone = phone.replace("-","");
+  var filteredPhone = phone.replace("+","");
+
+  if (filteredPhone[0] == 1) filteredPhone.substring(1,filteredPhone.length);
+  if (filteredPhone.length != 10) throw InvalidPhoneException("Less than 10 digits");
+  
+  return filteredPhone;
+}
+
 
 // -- SMS Handler -- //
 
-exports.receiveSMS = function(sms_data, response) {
+exports.receiveSMS = function(sender, message, response) {
 
-  var from = "";
+  if (sender == null) {
+    response.error();
+    return;
+  }
+  if (message == null) {
+    response.error();
+    return;
+  }
+  
+  var from = sender;
   var to = global.TWILIO_DATA().number;
-  var msg = "";
-
-  // Getting the sender number
-  if (sms_data.From && typeof sms_data.From != 'undefined') 
-    from = sms_data.From;
-  else {
-    response.error();
-    return;
-  }
-
-  // Getting the sms body
-  if (sms_data.Body && typeof sms_data.Body != 'undefined') 
-    msg = sms_data.Body;
-  else {
-    response.error();
-    return;
-  }
+  var msg = message;
   
   response.success();
   
