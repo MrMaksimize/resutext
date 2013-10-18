@@ -28,7 +28,6 @@ exports.findUserWithPhone = function(phone) {
   
   if (phone_handler.findPhoneNumbers(phone) < 1)  return Parse.Promise.error(NO_USER_MSG);
 
-  console.log(phone);
   var query = new Parse.Query(Parse.User);
   query.equalTo("phone", phone);
   
