@@ -160,7 +160,7 @@ exports.executeRequest = function(request_path, callbackFunction) {
 }
 
 exports.getCurrentUserProfile = function(successCallback) {
-  module.exports.executeRequest('people/~:(first-name,last-name,headline,id,email-address)', successCallback);
+  module.exports.executeRequest('people/~:(first-name,last-name,headline,id,email-address,public-profile-url)', successCallback);
 }
 
 

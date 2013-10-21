@@ -21,6 +21,9 @@ module.exports = function(){
       user.set('LIAccessToken', accessToken);
     }
 
+    var promise = new Parse.Promise();
+
+
     console.log('user called');
 
     user.signUp().then(function(user) {
@@ -31,13 +34,30 @@ module.exports = function(){
       userSettings.save().then(function(userSettings) {
         user.set("userSettings", userSettings);
         user.save();
-        res.redirect('/');
+        //res.redirect('/');
+        promise.resolve(user);
       });
     }, function(error) {
       // Show the error message and let the user try again
       res.render('signup', { flash: error.message });
     });
   };
+
+  var syncCurrentUser = function(userProfile) {
+    var user = Parse.User.current();
+    var promise = new Parse.Promise();
+    if (!user) {
+      return promise.reject("No User");
+    }
+    console.log(userProfile);
+    var userSettings = user.get('userSettings');
+    userSettings.set('linkedin', userProfile.publicProfileUrl);
+    userSettings.save().then(function(result){
+      promise.resolve('successful update');
+    });
+
+    return promise;
+  }
 
   // Signs up a new user
   app.post('/signup', function(req, res) {
@@ -69,53 +89,8 @@ module.exports = function(){
   });
 
   app.get('/debug', function(req, res) {
-    //createUser('max@maksimize.com', 'test123', 'AQXx_kW4cHLBx2Wow-QfEAH8b3OJOxXe_qrZhxGvW-AvHqBu0MeXxAiZ9OkSOqPzsII53ael41qgUesNx0NbYmANl9r39HIMZrVcDX3o1AI9jfj_UqBXmbWJdFOue2A3q1_978RlcDqKZGBdFOBvIVI6EZulj0nLY40PD_eYoHxdWe2osys', res);
-    var crypto = require('crypto');
-    var string = crypto.createHash('md5').update('mehok').digest('hex');
-    var string2 = crypto.createHash('md5').update('mehok').digest('hex');
-    console.log(string);
-    console.log(string2);
-
-    var profileID = 'I0-fDtdhnB';
-    var string = crypto.createHash('md5').update(profileID).digest('hex');
-    var string2 = crypto.createHash('md5').update(profileID).digest('hex');
-    console.log(string);
-    console.log(string2);
-
-    var userQuery = new Parse.Query(Parse.User);
-        userQuery.equalTo("linkedInID", 'I0-fDtdhnB');
-        // I'm fully aware that using LinkedIN id's for passwords is a terrible idea.  BUT idk what to do for now.
-        userQuery.find({
-          success: function(results) {
-            if (results.length > 0) {
-              console.log('user found');
-              var userFound = results[0];
-              console.log(userFound);
-              console.log(userFound.get('email'));
-              console.log(clientSettings.APIKeySecret);
-              var password = linkedInClient.getParsePasswordFromID(profileResponse.data.id, clientSettings.APIKeySecret);
-              console.log(password);
-              Parse.User.logIn(userFound.get('email'), password).then(function(user){
-                console.log('logging in by lookup')
-                console.log(user);
-                user.set('LIAccessToken', clientSettings.accessToken);
-                user.save().then(function(user) {
-                  res.redirect('/');
-                });
-              });
-            }
-            else {
-              console.log('new user');
-              var password = linkedInClient.getParsePasswordFromID(profileResponse.data.id, clientSettings.APIKeySecret);
-              createUser(profileResponse.data.emailAddress, password, profileResponse.data.id, clientSettings.accessToken, res);
-            }
-          },
-          error: function(error) {
-            console.log('llokup failed');
-            console.log(error);
-          }
-        });
-
+    console.log('love');
+    syncCurrentUser('test').then(function(result){console.log('result: ' + result);});
   });
 
 
@@ -161,14 +136,22 @@ module.exports = function(){
                 console.log(user);
                 user.set('LIAccessToken', clientSettings.accessToken);
                 user.save().then(function(user) {
-                  res.redirect('/');
+                  console.log('user save done.');
+                 syncCurrentUser(profileResponse.data).then(function(result){
+                   console.log(result);
+                   console.log('success sync');
+                   res.redirect('/');
+                 });
                 });
               });
             }
             else {
               console.log('new user');
               var password = linkedInClient.getParsePasswordFromID(profileResponse.data.id, clientSettings.APIKeySecret);
-              createUser(profileResponse.data.emailAddress, password, profileResponse.data.id, clientSettings.accessToken, res);
+              createUser(profileResponse.data.emailAddress, password, profileResponse.data.id, clientSettings.accessToken, res).then(function(user){
+                console.log('promise good');
+                console.log('user');
+                });
             }
           },
           error: function(error) {
