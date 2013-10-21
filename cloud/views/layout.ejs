@@ -18,6 +18,7 @@
        Parse.initialize("4dd41xGqxXYe3cowlvKR7p8iZX7P7HXjtiUfw0C6", "Z35RUKXUEpWhQdJKO0X6SNDulMAoe2JH9OofLv5v");
      </script>
      <script type="text/javascript" src="/javascripts/main.js"></script>
+     <script type="text/javascript" src="/javascripts/oauthslave.popup.js"></script>
      <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
      <link href="//netdna.bootstrapcdn.com/bootswatch/3.0.0/flatly/bootstrap.min.css" rel="stylesheet">
      <link href="/stylesheets/styles.css" rel="stylesheet" type="text/css" />
@@ -45,7 +46,7 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
           <ul class="nav navbar-nav navbar-right">
             <% if (!Parse.User.current()) { %>
-            <li><a href="/login">Login</a></li>
+            <li><a class="login-link" href="/login">Login</a></li>
             <li><a href="/signup">Signup</a></li>
           <% } else { %>
             <li><a href="/i/mine"><%= Parse.User.current().get('username') %></a></li>
@@ -70,7 +71,7 @@
       <% } %>
 
       <%- body %>
-        
+
 
     </div><!-- /.container -->
   </body>
