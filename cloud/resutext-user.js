@@ -1,0 +1,113 @@
+
+var linkedInClient = require('cloud/modules/linkedin/linkedin');
+
+exports.create = function(email, password, linkedInID, accessToken, res) {
+  var user = new Parse.User();
+  user.set('username', email);
+  user.set('email', email);
+  user.set('password', password);
+  if (linkedInID) {
+    user.set('linkedInID', linkedInID);
+  }
+  if (accessToken) {
+    user.set('LIAccessToken', accessToken);
+  }
+
+  var promise = new Parse.Promise();
+
+
+
+  user.signUp().then(function(user) {
+    var UserSettings = Parse.Object.extend("UserSettings");
+    var query = new Parse.Query(UserSettings);
+    var userSettings = new UserSettings();
+    userSettings.set("user", user);
+    userSettings.save().then(function(userSettings) {
+      user.set("userSettings", userSettings);
+      user.save().then(function(user) {
+        promise.resolve(user);
+      });
+    });
+  }, function(error) {
+    // Show the error message and let the user try again
+     promise.reject("User Not Created");
+    //res.render('signup', { flash: error.message });
+  });
+
+  return promise;
+};
+
+exports.sync = function(userProfile) {
+  var user = Parse.User.current();
+  var promise = new Parse.Promise();
+  if (!user) {
+    return promise.reject("No User");
+  }
+  console.log(userProfile);
+  var userSettings = user.get('userSettings');
+  userSettings.set('linkedin', userProfile.publicProfileUrl);
+  userSettings.save().then(function(result){
+    promise.resolve('successful update');
+  });
+
+  return promise;
+}
+
+/*exports.lookUpByLinkedInID = function(linkedInID) {
+
+}*/
+
+exports.loginWithLinkedIn = function(req, res) {
+
+  console.log('initialize');
+
+  linkedInClient.initialize({
+    APIKey: 'v0wh3ponihe9',
+    APIKeySecret: 'UmYOhdOAg8aS7dQI',
+    callbackURL: 'http://resutext.parseapp.com/auth',
+    redirectPostAuth: 'http://resutext.parseapp.com',
+    APIScope: 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages'
+    //accessToken: '' // Access token can be pulled from DB?
+  });
+
+  linkedInClient.authenticate(req, res, function(response) {
+    console.log('success on authenticate');
+    console.log('yay');
+    linkedInClient.getCurrentUserProfile(function(profileResponse) {
+      var clientSettings = linkedInClient.getCurrentSettings();
+      var userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo("linkedInID", profileResponse.data.id);
+      // I'm fully aware that using LinkedIN id's for passwords is a terrible idea.  BUT idk what to do for now.
+      userQuery.find({
+        success: function(results) {
+          if (results.length > 0) {
+            console.log('user found');
+            var userFound = results[0];
+            var password = linkedInClient.getParsePasswordFromID(profileResponse.data.id, clientSettings.APIKeySecret);
+            Parse.User.logIn(userFound.get('email'), password).then(function(user){
+              user.set('LIAccessToken', clientSettings.accessToken);
+              user.save().then(function(user) {
+                res.redirect('/');
+              });
+            });
+          }
+          else {
+            var password = linkedInClient.getParsePasswordFromID(profileResponse.data.id, clientSettings.APIKeySecret);
+            module.exports.create(profileResponse.data.emailAddress, password, profileResponse.data.id, clientSettings.accessToken, res).then(function(user){
+              module.exports.sync(profileResponse.data).then(function(result){
+                 console.log(result);
+                 res.redirect('/');
+              });
+            });
+          }
+        },
+        error: function(error) {
+          console.log('llokup failed');
+          console.log(error);
+        }
+      });
+    });
+  });
+}
+
+
