@@ -12,11 +12,7 @@ exports.create = function(email, password, linkedInID, accessToken, res) {
   if (accessToken) {
     user.set('LIAccessToken', accessToken);
   }
-
   var promise = new Parse.Promise();
-
-
-
   user.signUp().then(function(user) {
     var UserSettings = Parse.Object.extend("UserSettings");
     var query = new Parse.Query(UserSettings);
@@ -29,9 +25,7 @@ exports.create = function(email, password, linkedInID, accessToken, res) {
       });
     });
   }, function(error) {
-    // Show the error message and let the user try again
      promise.reject("User Not Created");
-    //res.render('signup', { flash: error.message });
   });
 
   return promise;
@@ -53,9 +47,6 @@ exports.sync = function(userProfile) {
   return promise;
 }
 
-/*exports.lookUpByLinkedInID = function(linkedInID) {
-
-}*/
 
 exports.loginWithLinkedIn = function(req, res) {
 
@@ -81,7 +72,6 @@ exports.loginWithLinkedIn = function(req, res) {
       userQuery.find({
         success: function(results) {
           if (results.length > 0) {
-            console.log('user found');
             var userFound = results[0];
             var password = linkedInClient.getParsePasswordFromID(profileResponse.data.id, clientSettings.APIKeySecret);
             Parse.User.logIn(userFound.get('email'), password).then(function(user){
