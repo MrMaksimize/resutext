@@ -36,6 +36,15 @@ exports.getTinyURL = function($parseFile) {
   });
 }
 
+exports.saveResumeObjectTest = function(resumeFile, user) {
+  return saveResumeObject(resumeFile, user[0]);
+}
+function saveResumeObject(resumeFile, user) {
+  var resumeObj = new Parse.Object("Resume");
+  resumeObj.set("resume", resumeFile);
+  resumeObj.set("user", user);
+  return resumeObj.save();
+}
 exports.uploadResumeForUser = function(user) {
 
   var NO_SAVE = global.ERROR_MESSAGES().could_not_save;  
@@ -43,34 +52,17 @@ exports.uploadResumeForUser = function(user) {
   /*
    * This is what the code should look like to
    * grab a file from express form
-   * 
+   */
   var fileUploadControl = $("#resumeFile")[0];
   if (fileUploadControl.files.length < 1) {
-    response.error("Invalid file");
-    return;
+    return Parse.Promise.error("Invalid file");
   }
   
   var file = fileUploadControl.files[0];
   var parseFile = new Parse.File(fileName, file);
-  */
-  
-  // Testing file
-  var base64 = "V29ya2luZyBhdCBQYXJzZSBpcyBncmVhdCE=";
-  var parseFile = new Parse.File("myfile.txt", { base64: base64 });
   
   return parseFile.save().then(function() {
-    
-    var resumeObj = new Parse.Object("Resume");
-    resumeObj.set("resume", parseFile);
-    
-    resumeObj.set("user", user);
-    return resumeObj.save().then(function() {
-      return "Success!";
-    },
-    function(error) {
-      return Parse.Promise.error(NO_SAVE);
-    });
-  
+    return saveResumeObject(parseFile, user[0]);
   });
 }
 
