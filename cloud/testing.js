@@ -119,3 +119,10 @@ Parse.Cloud.define("sendResume_test", function(request, response) {
     response.error("Could not find user");
   });
 });
+
+Parse.Cloud.define("incomingSMS_test", function(request, response) {
+  console.log("incomingSMS_test");
+
+  return Parse.Cloud.run('incomingSMS', request.params);
+
+});
