@@ -9,7 +9,9 @@ var expert_handler = require('cloud/expert.js');
 var resume_handler = require('cloud/resume.js');
 
 
-
+/**
+ * Special testing via SMS for correct behavior
+ */
 Parse.Cloud.define("sms_test", function(request, response) {
   console.log("---");
   
@@ -31,8 +33,16 @@ Parse.Cloud.define("sms_test", function(request, response) {
   response.success("Launched tests");
 });
 
+
+/**
+ * Code testing
+ */
+function getTestUser() {
+  return user_handler.findUserWithPhone("3128602305");
+}
+
 Parse.Cloud.define("tiny_test", function(request, response) {
-  console.log("---");
+  console.log("tiny_test");
   
   Parse.Cloud.httpRequest({
     url: 'http://tiny.cc/',
@@ -61,14 +71,10 @@ Parse.Cloud.define("tiny_test", function(request, response) {
       response.error("Failed to get tiny");
     }
   });
-  
 });
 
-function getTestUser() {
-  return user_handler.findUserWithPhone("3128602305");
-}
-
 Parse.Cloud.define("uploadResume_test", function(request, response) {
+  console.log("uploadResume_test");
   
   getTestUser().then(function(user) {
   
@@ -93,6 +99,7 @@ Parse.Cloud.define("uploadResume_test", function(request, response) {
 });
 
 Parse.Cloud.define("sendResume_test", function(request, response) {
+  console.log("sendResume_test");
 
   getTestUser().then(function(user) {
 
