@@ -3,18 +3,18 @@
     /**
      * Curl request Callback
      */
-    function test_($url) {
+    function test_($url, $params = array("param"=>"1")) {
         $headers = array();
         $headers[] = 'Content-Type: application/json';
         $headers[] = 'X-Parse-Application-Id: i9SsK4ZdQTDlBg5HtdHDuiW8FGiR1q07bEiNRAuy';
         $headers[] = 'X-Parse-REST-API-Key: meqSBrlFTLR7wByzKdJiWDfZQwPCH8qsftmBjaU9';
-        
-        $post = '{"param":"test"}';
     
+        $params = json_encode($params);
+
         $handle = curl_init(); 
         curl_setopt($handle, CURLOPT_URL, $url);
         curl_setopt($handle, CURLOPT_POST, true);
-        curl_setopt($handle, CURLOPT_POSTFIELDS, $post);
+        curl_setopt($handle, CURLOPT_POSTFIELDS, $params);
         curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
@@ -25,6 +25,14 @@
         return $data;
     }
     
+    function get_params() {
+        $validMsgs = array('gefthefrench@gmail.com', 'resume 3128602305', 'resume 13128602305', 'resume +1-312-860-2305', 'resume +13128602305');
+        $invalidMsgs = array('@g', 'reme 3128602305', '+1-312-860-2305', 'dude');
+        $phone = "+13128602305";
+        
+        return array('validMsgs' => $validMsgs, '$invalidMsgs' => $invalidMsgs, 'from' => $phone);
+    }
+    
     /**
      * Main Testing Call (:
      */
@@ -33,6 +41,7 @@
         uploadResume_test();
         sendResume_test();
         //sms_test();
+        print("\n");
     }
     
     /**
@@ -59,8 +68,8 @@
         print("\n- END sendResume_test -\n");
     }
     
-    function sms_test() {
-        $result = test_("https://api.parse.com/1/functions/sms_test");
+    function sms_test() {                    
+        $result = test_("https://api.parse.com/1/functions/sms_test", get_params());
         print("\n- BEGIN sendResume_test -\n");
         print($result);
         print("\n- END sendResume_test -\n");

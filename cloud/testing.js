@@ -15,18 +15,21 @@ var resume_handler = require('cloud/resume.js');
 Parse.Cloud.define("sms_test", function(request, response) {
   console.log("---");
   
-  var validMsgs = ['gefthefrench@gmail.com', 'resume 3128602305', 'resume 13128602305', 'resume +1-312-860-2305', 'resume +13128602305'];
-  var invalidMsgs = ['@g', 'reme 3128602305', '+1-312-860-2305', 'dude'];
+  validMsgs = request.params.validMsgs;
+  invalidMsgs = request.params.invalidMsgs;
+  from = request.params.from;
   
-  var from = "+13128602305";
+  from = typeof from !== 'undefined' ? from : "+13128602305";
   var to = global.TWILIO_DATA().number;
   
   for (var msg in validMsgs) {
     var sms = phone_handler.makeSMS(from, to, validMsgs[msg]);
+    //console.log(sms);
     sms.send();
   }
   for (var msg in invalidMsgs) {
     var sms = phone_handler.makeSMS(from, to, invalidMsgs[msg]);
+    //console.log(sms);
     sms.send();
   }
   
