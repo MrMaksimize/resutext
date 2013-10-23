@@ -40,6 +40,9 @@ exports.sync = function(userProfile) {
   console.log(userProfile);
   var userSettings = user.get('userSettings');
   userSettings.set('linkedin', userProfile.publicProfileUrl);
+  userSettings.set('firstName', userProfile.firstName);
+  userSettings.set('lastName', userProfile.lastName);
+  userSettings.set('headline', userProfile.headline);
   userSettings.save().then(function(result){
     promise.resolve('successful update');
   });

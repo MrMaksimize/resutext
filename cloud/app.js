@@ -39,7 +39,10 @@ app.get('/', function(req, res) {
     userSettings.fetch({
       success: function(userSettings) {
         res.render('settings', {
-          linkedin: userSettings.get('linkedin') || ''
+          firstName: userSettings.get('firstName') || '',
+          lastName: userSettings.get('lastName') || '',
+          headline: userSettings.get('headline') || '',
+          linkedin: userSettings.get('linkedin') || '',
         });
       }
     });
