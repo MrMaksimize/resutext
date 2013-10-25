@@ -14,16 +14,7 @@ exports.create = function(email, password, linkedInID, accessToken, res) {
   }
   var promise = new Parse.Promise();
   user.signUp().then(function(user) {
-    var UserSettings = Parse.Object.extend("UserSettings");
-    var query = new Parse.Query(UserSettings);
-    var userSettings = new UserSettings();
-    userSettings.set("user", user);
-    userSettings.save().then(function(userSettings) {
-      user.set("userSettings", userSettings);
-      user.save().then(function(user) {
         promise.resolve(user);
-      });
-    });
   }, function(error) {
      promise.reject("User Not Created");
   });
@@ -38,13 +29,12 @@ exports.sync = function(userProfile) {
     return promise.reject("No User");
   }
   console.log(userProfile);
-  var userSettings = user.get('userSettings');
-  userSettings.set('linkedin', userProfile.publicProfileUrl);
-  userSettings.set('firstName', userProfile.firstName);
-  userSettings.set('lastName', userProfile.lastName);
-  userSettings.set('headline', userProfile.headline);
-  userSettings.save().then(function(result){
-    promise.resolve('successful update');
+  user.set('linkedin', userProfile.publicProfileUrl);
+  user.set('firstName', userProfile.firstName);
+  user.set('lastName', userProfile.lastName);
+  user.set('headline', userProfile.headline);
+  user.save().then(function(result){
+    promise.resolve(result);
   });
 
   return promise;

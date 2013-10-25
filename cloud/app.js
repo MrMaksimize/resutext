@@ -35,16 +35,12 @@ app.get('/', function(req, res) {
     res.render('hello', { message: 'Welcome to ResuText!' });
   }
   else {
-    var userSettings = Parse.User.current().get('userSettings');
-    userSettings.fetch({
-      success: function(userSettings) {
-        res.render('settings', {
-          firstName: userSettings.get('firstName') || '',
-          lastName: userSettings.get('lastName') || '',
-          headline: userSettings.get('headline') || '',
-          linkedin: userSettings.get('linkedin') || '',
-        });
-      }
+    var user = Parse.User.current();
+    res.render('settings', {
+      firstName: user.get('firstName') || '',
+      lastName: user.get('lastName') || '',
+      headline: user.get('headline') || '',
+      linkedin: user.get('linkedin') || '',
     });
   }
 });

@@ -7,9 +7,12 @@ module.exports = function(){
   app.post('/update-settings', function(req, res) {
     //console.log(req.body);
     res.render('hello', { message: req.body.linkedin });
-    var userSettings = Parse.User.current().get('userSettings');
-    userSettings.set("linkedin", req.body.linkedin);
-    userSettings.save();
+    var user = Parse.User.current();
+    user.set("firstName", req.body.firstName);
+    user.set("lastName", req.body.lastName);
+    user.set("headline", req.body.headline);
+    user.set("linkedin", req.body.linkedin);
+    user.save();
   });
 
   return app;
