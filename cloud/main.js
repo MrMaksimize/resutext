@@ -2,6 +2,7 @@
 // -- Global Vars -- //
 var global = require('cloud/globals.js');
 require('cloud/testing.js');
+require('cloud/app.js');
 
 // -- Experts -- //
 var phone_handler = require('cloud/phone.js');
@@ -16,28 +17,28 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
   console.log("---");
 
   if (request.params.From && typeof request.params.From != 'undefined') {
-    
+
     request.params.From = phone_handler.filterPhone(request.params.From);
-  
+
     var findUser = user_handler.findUserWithPhone(request.params.From);
     findUser.then(function(user) {
-      
+
       if (!user || user == null || user.length < 1) {
         response.error("Could not find user");
         return;
       }
-  
+
       var sms = phone_handler.receiveSMS(request.params.From, request.params.Body, response);
       if (sms) console.log("Received: " + sms);
       else console.log("Received: " + "Invalid SMS");
-    
+
       var actions = expert_handler.parseSMS(sms.msg, sms.from);
       if (actions) console.log("Got " + actions.length + " action(s)");
       else console.log("Got: " + "Invalid Actions");
-    
+
       var result = performActions(actions);
       response.success("Successfully handled user sms");
-      
+
     }, function(error) {
       response.error("Could not find user");
     });
@@ -58,7 +59,7 @@ Parse.Cloud.define("uploadResume", function(request, response) {
   if (!currentUser) {
     response.error("User currently not logged in");
   }
-  
+
   resume_handler.uploadResumeForUser(user).then(function() {
     response.success("Saved resume");
   },
@@ -69,12 +70,12 @@ Parse.Cloud.define("uploadResume", function(request, response) {
 
 Parse.Cloud.define("sendResume", function(request, response) {
   console.log("---");
-  
+
   var currentUser = Parse.User.current();
   if (!currentUser) {
     response.error("User currently not logged in");
   }
-  
+
   resume_handler.retrieveResumeForUser(user).then(function(resume) {
     console.log(resume);
     response.success("Got resume!");
