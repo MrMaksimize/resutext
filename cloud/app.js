@@ -17,10 +17,10 @@ app.use(express.methodOverride());
 app.use(express.cookieParser('SECRET_SIGNING_KEY'));
 app.use(parseExpressCookieSession({
     fetchUser: true,
-      key: 'image.sess',
-        cookie: {
-              maxAge: 3600000 * 24 * 30
-                }
+    key: 'image.sess',
+    cookie: {
+      maxAge: 3600000 * 24 * 30
+    }
 }));
 
 
@@ -39,7 +39,10 @@ app.get('/', function(req, res) {
     userSettings.fetch({
       success: function(userSettings) {
         res.render('settings', {
-          linkedin: userSettings.get('linkedin') || ''
+          firstName: userSettings.get('firstName') || '',
+          lastName: userSettings.get('lastName') || '',
+          headline: userSettings.get('headline') || '',
+          linkedin: userSettings.get('linkedin') || '',
         });
       }
     });
