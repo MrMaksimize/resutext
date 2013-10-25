@@ -7,6 +7,7 @@ var phone_handler = require('cloud/phone.js');
 var user_handler = require('cloud/user_handler.js');
 var expert_handler = require('cloud/expert.js');
 var resume_handler = require('cloud/resume.js');
+var email_handler = require('cloud/email.js');
 
 
 /**
@@ -44,9 +45,8 @@ function getTestUser() {
   return user_handler.findUserWithPhone("3128602305");
 }
 
+// Functionality testing
 Parse.Cloud.define("tiny_test", function(request, response) {
-  console.log("tiny_test");
-  
   Parse.Cloud.httpRequest({
     url: 'http://tiny.cc/',
     params: {
@@ -62,23 +62,118 @@ Parse.Cloud.define("tiny_test", function(request, response) {
       var tinyRes = JSON.parse(httpResponse.text);
       if (tinyRes['errorCode'] != 0) {
         console.error('Request failed with response code ' + httpResponse.status);
-        response.error("Failed to get tiny");
+        response.error("Invalid tiny");
       }
       else {
         var tinyURL = tinyRes['results']['short_url'];
-        response.success("Got tiny " + tinyURL);
+        response.success("Got tiny");
       }
     },
     error: function(httpResponse) {
       console.error('Request failed with response code ' + httpResponse.status);
-      response.error("Failed to get tiny");
+      response.error("Tiny failed");
     }
   });
 });
 
-Parse.Cloud.define("uploadResume_test", function(request, response) {
-  console.log("uploadResume_test");
+Parse.Cloud.define("findUserWithPhone_test", function(request, response) {
+  if (!request.params.hasOwnProperty('Phone')) {
+    response.error("No Phone provided");
+    return;
+  }
+  user_handler.findUserWithPhone(request.params.Phone).then(function(user) {
+    
+    if (user == null) {
+      response.error("Invalid user");
+    }
+    else if (user.length < 1) {
+      response.error("Invalid user");
+    }
+    else {
+      response.success("Valid user");
+    }
+  },
+  function(error) {
+    console.log(error);
+    response.error("No user");
+  });
+});
+
+Parse.Cloud.define("findUserWithEmail_test", function(request, response) {
+  if (!request.params.hasOwnProperty('Email')) {
+    response.error("No Email provided");
+    return;
+  }
+  user_handler.findUserWithEmail(request.params.Email).then(function(user) {
+    
+    if (user == null) {
+      response.error("Invalid user");
+    }
+    else if (user.length < 1) {
+      response.error("Invalid user");
+    }
+    else {
+      response.success("Valid user");
+    }
+  },
+  function(error) {
+    console.log(error);
+    response.error("No user");
+  });
+});
+
+Parse.Cloud.define("findPhoneNumbers_test", function(request, response) {
+  if (!request.params.hasOwnProperty('Phone')) {
+    response.error("No Phone provided");
+    return;
+  }
   
+  var phones = phone_handler.findPhoneNumbers(request.params.Phone);
+  if (phones == null || phones.length < 1) {
+    response.error("No Valid Phone");
+    return;
+  }
+  response.success(request.params.Phone);
+});
+
+Parse.Cloud.define("filterPhone_test", function(request, response) {
+  if (!request.params.hasOwnProperty('Phone')) {
+    response.error("No Phone provided");
+    return;
+  }
+  
+  try {
+    var phone = phone_handler.filterPhone(request.params.Phone);
+    if (phone == null) {
+      response.error("No Valid Phone");
+      return;
+    }
+    response.success(request.params.Phone);
+    return;
+  } catch (err) {
+    console.log(err);
+    response.error("No Valid Phone");
+  }
+});
+
+Parse.Cloud.define("findEmailAddresses_test", function(request, response) {
+  if (!request.params.hasOwnProperty('Email')) {
+    response.error("No Email provided");
+    return;
+  }
+  
+  var emails = email_handler.findEmailAddresses(request.params.Email);
+  if (emails == null || emails.length < 1) {
+    response.error("No Valid Email");
+    return;
+  }
+  response.success(request.params.Email);
+  return;
+});
+
+
+// Feature testing
+Parse.Cloud.define("uploadResume_test", function(request, response) {  
   getTestUser().then(function(user) {
   
     // Testing file
@@ -87,7 +182,7 @@ Parse.Cloud.define("uploadResume_test", function(request, response) {
     
     return parseFile.save().then(function() {
         resume_handler.saveResumeObjectTest(parseFile, user).then(function() {
-        response.success("Saved resume");
+        response.success("Resume saved");
       },
       function(error) {
         console.log(error);
@@ -96,33 +191,42 @@ Parse.Cloud.define("uploadResume_test", function(request, response) {
     },
     function(error) {
       console.log(error);
-      response.error("Could not log in");
+      response.error("Could not save file");
     });
   });
 });
 
-Parse.Cloud.define("sendResume_test", function(request, response) {
-  console.log("sendResume_test");
-
+Parse.Cloud.define("retrieveResume_test", function(request, response) {
   getTestUser().then(function(user) {
 
     resume_handler.retrieveResumeForUser(user).then(function(resume) {
       console.log(resume);
-      response.success("Got resume!");
+      if (resume == null )
+           response.error("Invalid resume");
+      else response.success("Valid resume");
     },
     function(error) {
-      response.error("Could not get the resume");
+      console.log(error);
+      response.error("No resume");
     });
     
   },
   function(error) {
-    response.error("Could not find user");
+    console.log(error);
+    response.error("No user");
   });
 });
 
 Parse.Cloud.define("incomingSMS_test", function(request, response) {
-  console.log("incomingSMS_test");
-
+  if (!request.hasOwnProperty('From')) {
+    response.error("No Phone provided");
+    return;
+  }
+  if (!request.hasOwnProperty('From')) {
+    response.error("No Body provided");
+    return;
+  }
+  
   return Parse.Cloud.run('incomingSMS', request.params);
 
 });

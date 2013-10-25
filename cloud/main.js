@@ -68,7 +68,7 @@ Parse.Cloud.define("uploadResume", function(request, response) {
   });
 });
 
-Parse.Cloud.define("sendResume", function(request, response) {
+Parse.Cloud.define("retrieveResume", function(request, response) {
   console.log("---");
 
   var currentUser = Parse.User.current();
