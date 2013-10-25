@@ -12,7 +12,9 @@ module.exports = function(){
     user.set("lastName", req.body.lastName);
     user.set("headline", req.body.headline);
     user.set("linkedin", req.body.linkedin);
-    user.save();
+    user.save().then(function(user){
+      res.redirect('/');
+    });
   });
 
   return app;
