@@ -43,29 +43,39 @@ var Resume = Parse.Object.extend({
           //response.error("Failed to get tiny");
         }
       });
-    }
+    },// Tiny
+    refresh: function() {
+      var query = new Parse.Query(Resume);
+      query.get(this.id, {
+        success: function(result) {
+          //console.log(result);
+          var file = result.get('resumeFile').url();
+          console.log(file);
+        },
+        error: function(object, error) {
+          console.log("ERROR");
+        }
+      });
+    }// Refresh
   },
   {
     // Class Properties
     create: function(file, user) {
+      console.log(file);
       var resume = new Resume();
       resume.set('resumeFile', file);
       resume.set('user', user);
       var acl = new Parse.ACL();
       acl.setPublicReadAccess(true);
-      acl.setWriteAccess(user), true);
+      acl.setWriteAccess(user, true);
       resume.set(acl);
-      return resume.save().then(function(resume){
-        user.set('resume', resume);
-        return user.save();
-      });
+      return resume;
     },
-
-    retrieveByUser: function(user) {
+    // THIS MAY NEED TO BE ON USER>
+    retrieveById: function(id) {
       var resume = user.get('resume');
       return resume.fetch();
     }
-
   }
 );
 

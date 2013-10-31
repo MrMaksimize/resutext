@@ -4,7 +4,7 @@ module.exports = function(){
   var express = require('express');
   var app = express();
 
-  var resutextResume = require('cloud/models/resutextResume');
+  var Resume = require('cloud/models/resutextResume');
 
   app.post('/update-settings', function(req, res) {
     //console.log(req.body);
@@ -17,14 +17,17 @@ module.exports = function(){
     user.set("linkedin", req.body.linkedin);
     user.save().then(function(user){
       if (req.body.file) {
-        resutextResume.create(req.body.file, user).then(function(){
-         console.log('saved');
-         res.send('Success');
-       });
-     }
-     else {
-       res.send('Success');
-     }
+        var resume = Resume.create(req.body.file, user);
+        resume.save().then(function(resume){
+          user.set('resume', resume)
+          return user.save()
+        }).then(function(){
+          res.send('Success');
+        });
+      }
+      else {
+        res.send('Success');
+      }
     });
   });
 
@@ -39,7 +42,7 @@ module.exports = function(){
       console.log(ph);
       //console.log(ph.url());
     });*/
-    var user = Parse.User.current();
+    /*var user = Parse.User.current();
     var resume = user.get('resume');
 
     console.log(resume);
@@ -50,7 +53,26 @@ module.exports = function(){
         var ph = resume.get('resumeFile').url();
         console.log(ph);
       }
-    });
+    });*/
+    var user = Parse.User.current();
+    var resume = user.get('resume');
+    console.log(resume.id);
+
+    /*var query = new Parse.Query(Resume);
+    query.get(resume.id, {
+      success: function(result) {
+        //console.log(result);
+        var file = result.get('resumeFile').url();
+        console.log(file);
+        res.send({'result' : result});
+      },
+      error: function(object, error) {
+        console.log("ERROR");
+      }
+    });*/
+    var resu = new Resume();
+    resu.set('id', resume.id);
+    resu.refresh();
 
   });
 
