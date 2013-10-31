@@ -31,9 +31,26 @@ module.exports = function(){
 
   app.get('/settings-debug', function (req, res) {
     //var debug = resutextResume.getTinyUrl();
-    var rt = new resutextResume();
-    var debug = rt.getTinyUrl();
-    console.log(debug);
+    //var rt = new resutextResume();
+    //var debug = rt.getTinyUrl();
+    /*resutextResume.retrieveByUser(Parse.User.current()).then(function(resume){
+      console.log(resume);
+      var ph = resume.get('resumeFile');
+      console.log(ph);
+      //console.log(ph.url());
+    });*/
+    var user = Parse.User.current();
+    var resume = user.get('resume');
+
+    console.log(resume);
+
+    resume.fetch({
+      success: function(resume) {
+        console.log(resume);
+        var ph = resume.get('resumeFile').url();
+        console.log(ph);
+      }
+    });
 
   });
 
