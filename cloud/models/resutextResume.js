@@ -17,14 +17,13 @@ var Resume = Parse.Object.extend({
 
     // This is a constructor.  Looks like constructors act as instance variables and simply apply
     // things to the model instance.  We don't really care about that.  We want to define a static
-    // Constructor below;
+    // Constructor below, if we really need to;
     /*constructor: function(attributes, options) {
       console.log('construction');
       Parse.Object.apply(this, arguments);
     },*/
 
     getTinyUrl: function() {
-      return this.get('resumeFile');
       Parse.Cloud.httpRequest({
         url: 'http://tiny.cc/',
         params: {
@@ -74,19 +73,7 @@ var Resume = Parse.Object.extend({
     },
   },
   {
-    // Class Properties / Static Constructors
-    /*create: function(file, user) {
-      console.log(file);
-      var resume = new Resume();
-      resume.set('resumeFile', file);
-      resume.set('user', user);
-      return resume;
-    },
-    // Replacment for create
-    spawn: function(properties) {
-      var resume = new Resume();
-      // Iterate though and set props.
-    },*/
+    // Class Properties / Static or Overloaded Constructors
   }
 );
 
