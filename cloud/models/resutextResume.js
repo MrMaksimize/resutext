@@ -14,6 +14,15 @@ var global = require('cloud/globals.js');
 var Resume = Parse.Object.extend({
     // Instance Props,
     className: 'Resume',
+
+    // This is a constructor.  Looks like constructors act as instance variables and simply apply
+    // things to the model instance.  We don't really care about that.  We want to define a static
+    // Constructor below;
+    /*constructor: function(attributes, options) {
+      console.log('construction');
+      Parse.Object.apply(this, arguments);
+    },*/
+
     getTinyUrl: function() {
       return this.get('resumeFile');
       Parse.Cloud.httpRequest({
@@ -44,38 +53,40 @@ var Resume = Parse.Object.extend({
         }
       });
     },// Tiny
-    refresh: function() {
+    enforceACL: function(user) {
+      var acl = new Parse.ACL();
+      acl.setPublicReadAccess(true);
+      acl.setWriteAccess(user, true);
+      this.set(acl);
+      return this;
+    }, // enforceACL
+    // Override fetch method cuz the regular one sucks.
+    fetch: function() {
       var query = new Parse.Query(Resume);
-      query.get(this.id, {
-        success: function(result) {
-          //console.log(result);
-          var file = result.get('resumeFile').url();
-          console.log(file);
-        },
-        error: function(object, error) {
-          console.log("ERROR");
-        }
+      return query.get(this.id);
+    },// fetch
+    getFileURL: function() {
+      var promise = new Parse.Promise();
+      this.fetch(this.id).then(function(result){
+        promise.resolve(result.get('resumeFile').url());
       });
-    }// Refresh
+      return promise;
+    },
   },
   {
-    // Class Properties
-    create: function(file, user) {
+    // Class Properties / Static Constructors
+    /*create: function(file, user) {
       console.log(file);
       var resume = new Resume();
       resume.set('resumeFile', file);
       resume.set('user', user);
-      var acl = new Parse.ACL();
-      acl.setPublicReadAccess(true);
-      acl.setWriteAccess(user, true);
-      resume.set(acl);
       return resume;
     },
-    // THIS MAY NEED TO BE ON USER>
-    retrieveById: function(id) {
-      var resume = user.get('resume');
-      return resume.fetch();
-    }
+    // Replacment for create
+    spawn: function(properties) {
+      var resume = new Resume();
+      // Iterate though and set props.
+    },*/
   }
 );
 
