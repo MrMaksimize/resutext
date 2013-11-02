@@ -40,12 +40,14 @@ module.exports = function(){
     console.log(resume.id);
     var resu = new Resume({id: resume.id});
     //resu.set('id', resume.id);
-    resu.getFileURL().then(function(url){
+    /*resu.getTinyURL().then(function(url){
       console.log(url);
+    });*/
+    resu.getTinyURL().then(function(result){
+      console.log(result);
     });
 
-    var resume = new Resume();
-    console.log(resume.id);
+
 
   });
 

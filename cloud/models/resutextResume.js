@@ -1,14 +1,12 @@
 
+var _ = require('underscore');
+// TODO do we need this?
 // -- Global Vars -- //
 var global = require('cloud/globals.js');
 
 
 // -- Handlers -- //
 
-//function getTinyURL($parseFile) {
-//
-//
-//
 // https://parse.com/docs/js/symbols/Parse.Object.html#.extend
 // https://parse.com/docs/js_guide
 var Resume = Parse.Object.extend({
@@ -23,35 +21,43 @@ var Resume = Parse.Object.extend({
       Parse.Object.apply(this, arguments);
     },*/
 
-    getTinyUrl: function() {
-      Parse.Cloud.httpRequest({
-        url: 'http://tiny.cc/',
-        params: {
-          c : 'rest_api',
-          m : 'shorten',
-          version : '2.0.3',
-          format : 'json',
-          longUrl : this,
-          login  : 'resutext',
-          apiKey : 'ecc1a578-f5b7-4aaa-beb1-d1510ed008ee'
-        },
-        success: function(httpResponse) {
+    /*initialize: function() {
+      _.bindAll(this);
+    },*/
+
+    getTinyURL: function() {
+     return this.fetch().then(function(resume){
+       console.log('hello');
+       if (resume.has('tinyURL')) {
+         return resume.get('tinyURL');
+       }
+        return Parse.Cloud.httpRequest({
+          url: 'http://tiny.cc/',
+          params: {
+            c : 'rest_api',
+            m : 'shorten',
+            version : '2.0.3',
+            format : 'json',
+            longUrl : resume.get('resumeFile').url(),
+            login  : 'resutext',
+            apiKey : 'ecc1a578-f5b7-4aaa-beb1-d1510ed008ee'
+          }
+        }).then(function(httpResponse){
           var tinyRes = JSON.parse(httpResponse.text);
           if (tinyRes['errorCode'] != 0) {
             console.error('Request failed with response code ' + httpResponse.status);
-            //response.error("Failed to get tiny");
+            return '';
           }
           else {
             var tinyURL = tinyRes['results']['short_url'];
-            //response.success("Got tiny " + tinyURL);
+            resume.set('tinyURL', tinyURL);
+            resume.save();
+            return tinyURL;
           }
-        },
-        error: function(httpResponse) {
-          console.error('Request failed with response code ' + httpResponse.status);
-          //response.error("Failed to get tiny");
-        }
-      });
-    },// Tiny
+        });
+     });
+    }, // tiny
+
     enforceACL: function(user) {
       var acl = new Parse.ACL();
       acl.setPublicReadAccess(true);
@@ -65,12 +71,12 @@ var Resume = Parse.Object.extend({
       return query.get(this.id);
     },// fetch
     getFileURL: function() {
-      var promise = new Parse.Promise();
-      this.fetch(this.id).then(function(result){
-        promise.resolve(result.get('resumeFile').url());
-      });
-      return promise;
-    },
+      console.log('get file');
+      console.log(this);
+      //return this.fetch(this.id).then(function(result){
+       // return result.get('resumeFile').url();
+     // });
+    }
   },
   {
     // Class Properties / Static or Overloaded Constructors
