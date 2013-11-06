@@ -26,36 +26,38 @@ var Resume = Parse.Object.extend({
     },*/
 
     getTinyURL: function() {
-     return this.fetch().then(function(resume){
-       console.log('hello');
-       if (resume.has('tinyURL')) {
-         return resume.get('tinyURL');
-       }
-        return Parse.Cloud.httpRequest({
-          url: 'http://tiny.cc/',
-          params: {
-            c : 'rest_api',
-            m : 'shorten',
-            version : '2.0.3',
-            format : 'json',
-            longUrl : resume.get('resumeFile').url(),
-            login  : 'resutext',
-            apiKey : 'ecc1a578-f5b7-4aaa-beb1-d1510ed008ee'
-          }
-        }).then(function(httpResponse){
-          var tinyRes = JSON.parse(httpResponse.text);
-          if (tinyRes['errorCode'] != 0) {
-            console.error('Request failed with response code ' + httpResponse.status);
-            return '';
-          }
-          else {
-            var tinyURL = tinyRes['results']['short_url'];
-            resume.set('tinyURL', tinyURL);
-            resume.save();
-            return tinyURL;
-          }
-        });
-     });
+      console.log('hello');
+      if (this.has('tinyURL')) {
+        console.log('tinyURL saved already');
+        return Parse.Promise.as(this.get('tinyURL'));
+      }
+      console.log('passin by');
+      var self = this;
+      return Parse.Cloud.httpRequest({
+        url: 'http://tiny.cc/',
+        params: {
+          c : 'rest_api',
+          m : 'shorten',
+          version : '2.0.3',
+          format : 'json',
+          longUrl : self.getResumeFileURL(),
+          login  : 'resutext',
+          apiKey : 'ecc1a578-f5b7-4aaa-beb1-d1510ed008ee'
+        }
+      }).then(function(httpResponse){
+        console.log('response');
+        var tinyRes = JSON.parse(httpResponse.text);
+        if (tinyRes['errorCode'] != 0) {
+          console.error('Request failed with response code ' + httpResponse.status);
+          return '';
+        }
+        else {
+          var tinyURL = tinyRes['results']['short_url'];
+          self.set('tinyURL', tinyURL);
+          self.save();
+          return tinyURL;
+        }
+      });
     }, // tiny
 
     enforceACL: function(user) {
@@ -70,12 +72,8 @@ var Resume = Parse.Object.extend({
       var query = new Parse.Query(Resume);
       return query.get(this.id);
     },// fetch
-    getFileURL: function() {
-      console.log('get file');
-      console.log(this);
-      //return this.fetch(this.id).then(function(result){
-       // return result.get('resumeFile').url();
-     // });
+    getResumeFileURL: function() {
+      return this.get('resumeFile').url();
     }
   },
   {

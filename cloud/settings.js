@@ -37,15 +37,16 @@ module.exports = function(){
   app.get('/settings-debug', function (req, res) {
     var user = Parse.User.current();
     var resume = user.get('resume');
-    console.log(resume.id);
     var resu = new Resume({id: resume.id});
-    //resu.set('id', resume.id);
-    /*resu.getTinyURL().then(function(url){
-      console.log(url);
-    });*/
-    resu.getTinyURL().then(function(result){
+    /*resu.fetch().then(getTinyURL().then(function(result){
       console.log(result);
-    });
+    });*/
+    resu.fetch().then(function(resu){
+      return resu.getTinyURL();
+    }).then(function(tinyURL) {
+      console.log('TINY');
+      console.log(tinyURL);
+    });;
 
 
 
