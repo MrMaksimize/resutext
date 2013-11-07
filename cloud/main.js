@@ -11,6 +11,14 @@ var expert_handler = require('cloud/expert.js');
 var resume_handler = require('cloud/resume.js');
 
 
+// Mocha test
+
+var message = require('cloud/message.js');
+
+Parse.Cloud.define("get_message", function(request, response) {
+  message.getMessage(request, response);
+});
+
 // -- Receiving SMSes -- //
 
 Parse.Cloud.define("incomingSMS", function(request, response) {

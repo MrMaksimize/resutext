@@ -13,10 +13,6 @@ module.exports = function(){
     res.redirect('/');
   });
 
-  app.get('/debug', function(req, res) {
-
-  });
-
   app.get('/auth', function (req, res) {
     resutextUser.loginWithLinkedIn(req, res);
   });
