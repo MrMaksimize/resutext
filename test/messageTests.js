@@ -1,6 +1,5 @@
-
 var expect = require("expect.js");
-var message = require('../cloud/message.js');
+var message = require('cloud/message.js');
 
 describe('Message', function () {
   describe('response', function () {

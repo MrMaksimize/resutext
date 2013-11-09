@@ -2,7 +2,7 @@
 var _ = require('underscore');
 // TODO do we need this?
 // -- Global Vars -- //
-var global = require('cloud/globals.js');
+var global = require('cloud/globals');
 var linkedInClient = require('cloud/modules/linkedin/linkedin');
 
 
@@ -13,7 +13,7 @@ var linkedInClient = require('cloud/modules/linkedin/linkedin');
 var User = Parse.User.extend(
   {
     test: function() {
-      console.log('Im alive!!!');
+      return 'test passes';
     }
   },
   {
