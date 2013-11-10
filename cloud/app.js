@@ -27,6 +27,12 @@ app.use(parseExpressCookieSession({
 
 app.locals._ = require('underscore');
 
+// Custom middleware
+
+//app.use(function(req, res, next) {
+//  console.log(next);
+//})
+
 
 
 // This is an example of hooking up a request handler with a specific request
@@ -47,8 +53,18 @@ app.get('/', function(req, res) {
   }
 });
 
+app.get('/testing', function(req, res) {
+  console.log('midware');
+  next();
+});
+app.get('/testing/:op', function (req, res) {
+  res.set({'Content-Type': 'application/json'});
+  res.send({'test': 'ok'});
+});
+
+
 // User endpoints
-app.use('/', require('cloud/user'));
+app.use('/user', require('cloud/user'));
 
 // Settings
 app.use('/', require('cloud/settings'));
