@@ -5,12 +5,11 @@ var _ = require('underscore');
 var crypto = require('crypto');
 
 var settings = {
-  APIKey: 'v0wh3ponihe9',
-  APIKeySecret: 'UmYOhdOAg8aS7dQI',
-  callbackURL: '',
-  redirectPostAuth: '',
+  //APIKey: 'v0wh3ponihe9',
+  //APIKeySecret: 'UmYOhdOAg8aS7dQI',
   APIScope: 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages',
   restBase: 'https://api.linkedin.com/v1',
+  //callbackURL:
   accessToken: null
 }
 
@@ -81,6 +80,7 @@ exports.authenticate = function(req, res) {
   console.log('auth called');
   var queryObject = url.parse(req.url, true).query;
   var nextStep = module.exports.getAuthNextStep(req);
+  console.log('Next Step.');
   console.log(nextStep);
 
   if (nextStep == 'getAuthCode') {
@@ -151,6 +151,17 @@ exports.getAccessToken = function(req, res, authCode, successCallback, failureCa
       failureCallback(res);
     }
   });*/
+  console.log(settings);
+  console.log('shit');
+  var params = {
+      grant_type: 'authorization_code',
+      code: authCode,
+      redirect_uri: settings.callbackURL,
+      client_id: settings.APIKey,
+      client_secret: settings.APIKeySecret
+    };
+    console.log(params);
+
   return Parse.Cloud.httpRequest({
     method: "POST",
     url: 'https://api.linkedin.com/uas/oauth2/accessToken', // Todo to variables abstract
@@ -169,7 +180,9 @@ exports.getAccessToken = function(req, res, authCode, successCallback, failureCa
         console.log('Set Cookie');
         res.cookie('LIAccess_token', settings.accessToken);
       }
-  });
+  }, function(error){
+      console.log(error);
+    });
 
 }
 

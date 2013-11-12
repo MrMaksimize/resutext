@@ -3,6 +3,7 @@
 module.exports = function(){
   var express = require('express');
   var app = express();
+  var linkedInClient = require('cloud/modules/linkedin/linkedin');
   //var resutextUser = require('cloud/resutext-user');
   var resutextUser = require('cloud/models/resutextUser');
 
@@ -13,7 +14,43 @@ module.exports = function(){
   });
 
   app.get('/auth', function (req, res) {
-    resutextUser.authWithLinkedIn(req, res);
+    //resutextUser.authWithLinkedIn(req, res);
+    linkedInClient.initialize({
+        APIKey: 'v0wh3ponihe9',
+        APIKeySecret: 'UmYOhdOAg8aS7dQI',
+        callbackURL: 'https://resutext.parseapp.com/user/auth',
+    });
+    linkedInClient.authenticate(req, res).then(function(result){
+      // Three things can happen here;
+      // We can get a redirect call,
+      // An http request result
+      // or nothing.
+      console.log('result');
+      console.log(result);
+      if (typeof result == 'string' &&
+        result != 'authentication_established') {
+        // Redirect
+        console.log('redirect');
+        res.redirect(result);
+      }
+      else {
+        console.log('get current prof');
+        linkedInClient.getCurrentUserProfile().then(function(profileResponse){
+          console.log('profile response');
+          console.log(profileResponse.data);
+          User.findOrCreateFromLinkedIn({
+            'email': profileResponse.data.emailAddress,
+            'linkedInID': profileResponse.data.id
+          }).then(function(userFound){
+            console.log('user Found');
+            console.log(userFound);
+          });
+        });
+      }
+    });
+
+
+
   });
 
   app.get('/debug', function (req, res) {

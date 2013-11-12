@@ -29,6 +29,7 @@ var User = Parse.User.extend(
   {
     // Class Properties / Static or Overloaded Constructors
     findOrCreateFromLinkedIn: function(userData) {
+      console.log('Find or create from linked in');
       User.getByLinkedInID(userData.linkedInID).then(function(result){
         if (result == null) {
           console.log('new user');
@@ -63,43 +64,6 @@ var User = Parse.User.extend(
         }
       });
     },
-    // Routing helper for linkedIN Authentication
-    authWithLinkedIn: function(req, res) {
-      linkedInClient.initialize({
-        APIKey: 'v0wh3ponihe9',
-        APIKeySecret: 'UmYOhdOAg8aS7dQI',
-        callbackURL: 'http://resutext.parseapp.com/user/auth',
-        redirectPostAuth: 'http://resutext.parseapp.com',
-        APIScope: 'r_basicprofile r_fullprofile r_emailaddress r_network r_contactinfo rw_nus rw_groups w_messages'
-        //accessToken: '' // Access token can be pulled from DB?
-      });
-
-      linkedInClient.authenticate(req, res).then(function(result){
-        // Three things can happen here;
-        // We can get a redirect call,
-        // An http request result
-        // or nothing.
-        if (typeof result == 'string' &&
-          result != 'authentication_established') {
-          // Redirect
-          res.redirect(result);
-        }
-        else {
-          console.log('get current prof');
-          linkedInClient.getCurrentUserProfile().then(function(profileResponse){
-            console.log('profile response');
-            console.log(profileResponse.data);
-            return User.findOrCreateFromLinkedIn({
-              'email': profileResponse.data.emailAddress,
-              'linkedInID': profileResponse.data.id
-            });
-          }).then(function(userFound){
-            console.log(userFound);
-          });
-        }
-      });
-
-    }
   }
 );
 
