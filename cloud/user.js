@@ -38,9 +38,6 @@ module.exports = function(){
           console.log('profile response');
           console.log(profileResponse.data);
           resutextUser.loginOrCreateFromLinkedIn(profileResponse.data).then(function(userFound){
-            console.log('user Found');
-            console.log(userFound);
-            console.log(Parse.User.current());
             res.redirect('/');
           },
           function(error) {

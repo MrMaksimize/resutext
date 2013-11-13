@@ -91,7 +91,7 @@ exports.authenticate = function(req, res) {
    return Parse.Promise.as(module.exports.getAuthRequestURL());
   }
   else if (nextStep == 'getAccessToken') {
-      return module.exports.getAccessToken(req, res, queryObject.code);
+      return module.exports.getAccessToken(res, queryObject.code);
   }
   else {
     return Parse.Promise.as('authentication_established');
@@ -124,46 +124,8 @@ exports.getAuthRequestURL = function () {
 }
 
 
-exports.getAccessToken = function(req, res, authCode, successCallback, failureCallback) {
+exports.getAccessToken = function(res, authCode) {
   console.log("Get Access Token");
-
-  console.log('Post Auth');
-  console.log(authCode)
-  /*Parse.Cloud.httpRequest({
-    method: "POST",
-    url: 'https://api.linkedin.com/uas/oauth2/accessToken', // Todo to variables abstract
-    params: {
-      grant_type: 'authorization_code',
-      code: authCode,
-      redirect_uri: settings.callbackURL,
-      client_id: settings.APIKey,
-      client_secret: settings.APIKeySecret
-    },
-    success: function(httpResponse) {
-      logResponse(httpResponse);
-      console.log(httpResponse.data.access_token);
-      if (httpResponse.data.access_token) {
-        settings.accessToken = httpResponse.data.access_token;
-        console.log('Set Cookie');
-        res.cookie('LIAccess_token', settings.accessToken);
-        successCallback(res);
-      }
-    },
-    error: function(httpResponse) {
-      logResponse(httpResponse);
-      failureCallback(res);
-    }
-  });*/
-  console.log(settings);
-  console.log('shit');
-  var params = {
-      grant_type: 'authorization_code',
-      code: authCode,
-      redirect_uri: settings.callbackURL,
-      client_id: settings.APIKey,
-      client_secret: settings.APIKeySecret
-    };
-    console.log(params);
 
   return Parse.Cloud.httpRequest({
     method: "POST",
@@ -176,16 +138,12 @@ exports.getAccessToken = function(req, res, authCode, successCallback, failureCa
       client_secret: settings.APIKeySecret
     },
   }).then(function(httpResponse){
-      logResponse(httpResponse);
-      console.log(httpResponse.data.access_token);
       if (httpResponse.data.access_token) {
         settings.accessToken = httpResponse.data.access_token;
         console.log('Set Cookie');
         res.cookie('LIAccess_token', settings.accessToken);
       }
-  }, function(error){
-      console.log(error);
-    });
+  });
 
 }
 
