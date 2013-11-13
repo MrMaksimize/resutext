@@ -14,7 +14,6 @@ module.exports = function(){
   });
 
   app.get('/auth', function (req, res) {
-    //resutextUser.authWithLinkedIn(req, res);
     linkedInClient.initialize({
         APIKey: 'v0wh3ponihe9',
         APIKeySecret: 'UmYOhdOAg8aS7dQI',
@@ -38,12 +37,19 @@ module.exports = function(){
         linkedInClient.getCurrentUserProfile().then(function(profileResponse){
           console.log('profile response');
           console.log(profileResponse.data);
-          User.findOrCreateFromLinkedIn({
+          resutextUser.loginOrCreateFromLinkedIn({
             'email': profileResponse.data.emailAddress,
             'linkedInID': profileResponse.data.id
           }).then(function(userFound){
             console.log('user Found');
             console.log(userFound);
+            console.log(Parse.User.current());
+            res.redirect('/');
+          },
+          function(error) {
+            console.log('I FAILED.');
+            console.log(error);
+            res.send(error);
           });
         });
       }

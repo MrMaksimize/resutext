@@ -45,7 +45,10 @@ exports.initialize = function(newSettings) {
   settings = _.extend(settings, newSettings);
 }
 
-exports.getCurrentSettings = function() {
+exports.getCurrentSettings = function(setting) {
+  if (setting) {
+    return settings[setting];
+  }
   return settings;
 }
 
@@ -187,6 +190,10 @@ exports.getAccessToken = function(req, res, authCode, successCallback, failureCa
 }
 
 exports.getParsePasswordFromID = function(profileID, salt) {
+  if(!salt || salt == null) {
+    salt = settings.APIKeySecret;
+  }
+  console.log('SALT: ' + salt);
   return crypto.createHash('md5').update(profileID + 'LiAccess' + salt).digest('hex');
 }
 
