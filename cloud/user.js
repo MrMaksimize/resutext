@@ -37,10 +37,7 @@ module.exports = function(){
         linkedInClient.getCurrentUserProfile().then(function(profileResponse){
           console.log('profile response');
           console.log(profileResponse.data);
-          resutextUser.loginOrCreateFromLinkedIn({
-            'email': profileResponse.data.emailAddress,
-            'linkedInID': profileResponse.data.id
-          }).then(function(userFound){
+          resutextUser.loginOrCreateFromLinkedIn(profileResponse.data).then(function(userFound){
             console.log('user Found');
             console.log(userFound);
             console.log(Parse.User.current());

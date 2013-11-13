@@ -28,35 +28,43 @@ var User = Parse.User.extend(
   },
   {
     // Class Properties / Static or Overloaded Constructors
-    loginOrCreateFromLinkedIn: function(userData) {
+    loginOrCreateFromLinkedIn: function(liProfileData) {
       console.log('Find or create from linked in');
-      return User.getByLinkedInID(userData.linkedInID).then(function(result){
+      return User.getByLinkedInID(liProfileData.id).then(function(result){
         console.log('get by li result');
         console.log(result);
         if (result == null) {
           console.log('new user');
-          return User.createFromLinkedIn(userData);
+          return User.createFromLinkedIn(liProfileData);
         }
         else {
-          return User.loginFromLinkedIn(userData);
+          return User.loginFromLinkedIn(result);
         }
       });
     },
 
-    createFromLinkedIn: function(userData) {
+    createFromLinkedIn: function(liProfileData) {
       console.log('new user');
-      console.log(userData);
-      return User.signUp(userData.email, linkedInClient.getParsePasswordFromID(userData.linkedInID), {
-        'email': userData.email,
-        'linkedInID': userData.linkedInID,
+      console.log(liProfileData);
+      return User.signUp(liProfileData.emailAddress,
+      linkedInClient.getParsePasswordFromID(liProfileData.id), {
+        'email': liProfileData.emailAddress,
+        'linkedInID': liProfileData.id,
         'LIAccessToken': linkedInClient.getCurrentSettings('accessToken'),
+        'linkedin': liProfileData.publicProfileUrl,
+        'firstName': liProfileData.firstName,
+        'lastName': liProfileData.lastName,
+        'headline': liProfileData.headline
       });
     },
 
     loginFromLinkedIn: function(userData) {
       console.log('existing user');
       console.log(userData);
-      return User.logIn(userData.email, linkedInClient.getParsePasswordFromID(userData.linkedInID));
+      console.log(userData.get('email'));
+      console.log(userData.get('linkedInID'));
+      return User.logIn(userData.get('email'),
+      linkedInClient.getParsePasswordFromID(userData.get('linkedInID')));
     },
 
     getByLinkedInID: function(linkedInID) {
