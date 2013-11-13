@@ -6,6 +6,7 @@ var parseExpressCookieSession = require('parse-express-cookie-session');
 var parseExpressHttpsRedirect = require('parse-express-https-redirect');
 var app = express();
 
+
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
 app.set('view engine', 'ejs');    // Set the template engine
@@ -26,11 +27,18 @@ app.use(parseExpressCookieSession({
 
 app.locals._ = require('underscore');
 
+// Custom middleware
+
+//app.use(function(req, res, next) {
+//  console.log(next);
+//})
+
 
 
 // This is an example of hooking up a request handler with a specific request
 // path and HTTP verb using the Express routing API.
 app.get('/', function(req, res) {
+
   if (!Parse.User.current()) {
     res.render('hello', { message: 'Welcome to ResuText!' });
   }
@@ -45,11 +53,24 @@ app.get('/', function(req, res) {
   }
 });
 
+app.get('/testing', function(req, res) {
+  console.log('midware');
+  next();
+});
+app.get('/testing/:op', function (req, res) {
+  res.set({'Content-Type': 'application/json'});
+  res.send({'test': 'ok'});
+});
+
+
 // User endpoints
-app.use('/', require('cloud/user'));
+app.use('/user', require('cloud/user'));
 
 // Settings
 app.use('/', require('cloud/settings'));
+
+// Resume
+app.use('/', require('cloud/resume'));
 
 // // Example reading from the request query string of an HTTP get request.
 // app.get('/test', function(req, res) {
