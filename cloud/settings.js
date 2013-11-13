@@ -5,24 +5,25 @@ module.exports = function(){
   var app = express();
 
   var Resume = require('cloud/models/resutextResume');
+  var User = require('cloud/models/resutextUser');
 
   app.post('/update-settings', function(req, res) {
     //console.log(req.body);
     //res.render('hello', { message: req.body.linkedin });
     //TODO refactor when user object is a bit more defined.
-    var user = Parse.User.current();
-    user.set("firstName", req.body.firstName);
-    user.set("lastName", req.body.lastName);
-    user.set("headline", req.body.headline);
-    user.set("linkedin", req.body.linkedin);
-    user.save().then(function(user){
+    var user = User.current();
+    user.save({
+      "firstName": req.body.firstName,
+      "lastName": req.body.lastName,
+      "headline": req.body.headline,
+      "linkedin": req.body.linkedin
+    }).then(function(user){
       if (req.body.file) {
         var resume = new Resume({
           'user': user,
           'resumeFile': req.body.file,
         }).enforceACL(user).save().then(function(resume){
-          user.set('resume', resume);
-          return user.save()
+          return user.save({'resume': resume});
         }).then(function(){
           res.send("Success");
         });
@@ -35,7 +36,7 @@ module.exports = function(){
 
 
   app.get('/settings-debug', function (req, res) {
-    var user = Parse.User.current();
+    var user = User.current();
     var resume = user.get('resume');
     var resu = new Resume({id: resume.id});
     /*resu.fetch().then(getTinyURL().then(function(result){
@@ -46,6 +47,7 @@ module.exports = function(){
     }).then(function(tinyURL) {
       console.log('TINY');
       console.log(tinyURL);
+      res.send(tinyURL);
     });;
 
 

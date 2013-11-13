@@ -5,7 +5,7 @@ $(document).ready(function(){
   }
   $('.login-link').click(function(event) {
     event.preventDefault();
-    var path = '/auth';
+    var path = '/user/auth';
     var windowName = 'ConnectWithLinkedIn'; // should not include space for IE
     var windowOptions = 'location=0,status=0,width=570,height=700,scrollbars=yes';
     var oauthWindow   = window.open(path, windowName, windowOptions);
