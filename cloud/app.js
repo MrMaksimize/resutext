@@ -64,7 +64,7 @@ app.get('/testing/:op', function (req, res) {
 
 
 // User endpoints
-app.use('/user', require('cloud/user'));
+app.use('/user', require('cloud/controllers/user'));
 
 // Settings
 app.use('/', require('cloud/settings'));
