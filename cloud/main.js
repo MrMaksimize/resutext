@@ -59,23 +59,6 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 
 
 
-/*Parse.Cloud.define("sendResume", function(request, response) {
-  console.log("---");
-
-  var currentUser = Parse.User.current();
-  if (!currentUser) {
-    response.error("User currently not logged in");
-  }
-
-  resume_handler.retrieveResumeForUser(user).then(function(resume) {
-    console.log(resume);
-    response.success("Got resume!");
-  },
-  function(error) {
-    response.error("Could not get the resume");
-  });
-});*/
-
 
 // -- Factory Expert -- //
 
