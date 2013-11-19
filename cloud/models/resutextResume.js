@@ -3,6 +3,7 @@ var _ = require('underscore');
 // TODO do we need this?
 // -- Global Vars -- //
 var global = require('cloud/globals.js');
+var User = require('cloud/models/resutextUser');
 
 
 // -- Handlers -- //
@@ -78,6 +79,18 @@ var Resume = Parse.Object.extend({
   },
   {
     // Class Properties / Static or Overloaded Constructors
+    getFromUser: function(user) {
+      var res = user.get('resume');
+      var resume = new Resume({'id': res.id});
+
+      return resume.fetch();
+    },
+
+    getTinyURLFromUser: function(user) {
+      return Resume.getFromUser(user).then(function(resume) {
+        return resume.getTinyURL();
+      });
+    }
   }
 );
 

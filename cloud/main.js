@@ -8,7 +8,7 @@ require('cloud/app.js');
 var phone_handler = require('cloud/phone.js');
 var user_handler = require('cloud/user_handler.js');
 var expert_handler = require('cloud/expert.js');
-var resume_handler = require('cloud/resume.js');
+//var resume_handler = require('cloud/resume.js');
 
 
 // Mocha test
@@ -58,25 +58,8 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 });
 
 
-// -- Resume Business -- //
 
-Parse.Cloud.define("uploadResume", function(request, response) {
-  console.log("---");
-
-  var currentUser = Parse.User.current();
-  if (!currentUser) {
-    response.error("User currently not logged in");
-  }
-
-  resume_handler.uploadResumeForUser(user).then(function() {
-    response.success("Saved resume");
-  },
-  function() {
-    response.error("Could not save resume");
-  });
-});
-
-Parse.Cloud.define("sendResume", function(request, response) {
+/*Parse.Cloud.define("sendResume", function(request, response) {
   console.log("---");
 
   var currentUser = Parse.User.current();
@@ -91,7 +74,7 @@ Parse.Cloud.define("sendResume", function(request, response) {
   function(error) {
     response.error("Could not get the resume");
   });
-});
+});*/
 
 
 // -- Factory Expert -- //

@@ -6,7 +6,7 @@ module.exports = function(){
   var linkedInClient = require('cloud/modules/linkedin/linkedin');
   //var resutextUser = require('cloud/resutext-user');
   var User = require('cloud/models/resutextUser');
-  var Resume = require('cloud/models/resutextUser');
+  var Resume = require('cloud/models/resutextResume');
 
   // Logs out the user
   app.get('/logout', function(req, res) {
@@ -75,6 +75,12 @@ module.exports = function(){
       else {
         res.send('Success');
       }
+    });
+  });
+
+  app.get('/resume', function(req, res) {
+    Resume.getTinyURLFromUser(User.current()).then(function(tinyURL) {
+      res.send({'tiny': tinyURL});
     });
   });
 

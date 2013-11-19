@@ -66,11 +66,6 @@ app.get('/testing/:op', function (req, res) {
 // User endpoints
 app.use('/user', require('cloud/controllers/user'));
 
-// Settings
-app.use('/', require('cloud/settings'));
-
-// Resume
-app.use('/', require('cloud/resume'));
 
 // // Example reading from the request query string of an HTTP get request.
 // app.get('/test', function(req, res) {
