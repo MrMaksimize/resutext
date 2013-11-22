@@ -13,13 +13,6 @@ var expert_handler = require('cloud/expert.js');
 var User = require('cloud/models/resutextUser');
 
 
-// Mocha test
-
-
-Parse.Cloud.define("get_message", function(request, response) {
-  message.getMessage(request, response);
-});
-
 // -- Receiving SMSes -- //
 
 Parse.Cloud.define("incomingSMS", function(request, response) {
