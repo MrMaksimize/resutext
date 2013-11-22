@@ -63,18 +63,23 @@ module.exports = function(){
       "linkedin": req.body.linkedin
     }).then(function(user){
       if (req.body.file) {
-        var resume = new Resume({
-          'user': user,
-          'resumeFile': req.body.file,
-        }).enforceACL(user).save().then(function(resume){
-          return user.save({'resume': resume});
-        }).then(function(){
-          res.send("Success");
-        });
+        console.log('got file');
+        return Resume.getFromUser(user);
       }
       else {
-        res.send('Success');
+        console.log('sending success');
+        res.send('success');
       }
+    }).then(function(resume) {
+      var updatedResume = resume || new Resume({'user': user});
+      updatedResume.set('resumeFile', req.body.file);
+      return updatedResume.save();
+    }).then(function(updatedResume) {
+      return user.save({"resume": updatedResume });
+    }).then(function(user) {
+      res.send('Success');
+    }, function(error) {
+      console.log(error);
     });
   });
 
