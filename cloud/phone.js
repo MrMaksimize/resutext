@@ -13,7 +13,7 @@ function InvalidPhoneException() {}
 exports.findPhoneNumbers = function(messageStr) {
   var phoneNumbersArray = [];
   if (messageStr.length < 10) return phoneNumbersArray;
-  
+
   phoneNumbersArray = messageStr.match(/\+?1?[0-9]{3}[\- ]?[0-9]{3}[\- ]?[0-9]{4}/);
   return phoneNumbersArray;
 }
@@ -24,7 +24,7 @@ exports.filterPhone = function(phone) {
 
   if (filteredPhone[0] == '1') filteredPhone = filteredPhone.substring(1,filteredPhone.length);
   if (filteredPhone.length != 10) throw InvalidPhoneException("Less than 10 digits");
-  
+
   return filteredPhone;
 }
 
@@ -41,13 +41,13 @@ exports.receiveSMS = function(sender, message, response) {
     response.error();
     return;
   }
-  
+
   var from = sender;
   var to = global.TWILIO_DATA().number;
   var msg = message;
-  
-  response.success();
-  
+
+  //response.success();
+
   return new SMS(from, to, msg);
 }
 
@@ -76,7 +76,7 @@ function SMS(from,to,msg)
 
 SMS.prototype.send = function smsSend() {
   console.log("Sending " + this);
-  
+
   Twilio.sendSMS({
     From: this.from,
     To: this.to,
@@ -84,11 +84,11 @@ SMS.prototype.send = function smsSend() {
   }, {
     success: function(httpResponse) {
       console.log('SMS Sent');
-      response.success('SMS Sent');
+      //response.success('SMS Sent');
     },
     error: function(httpResponse) {
       console.log('SMS Failed');
-      response.error('SMS Failed');
+      //response.error('SMS Failed');
     }
   });
 }

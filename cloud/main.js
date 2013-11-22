@@ -10,10 +10,11 @@ var user_handler = require('cloud/user_handler.js');
 var expert_handler = require('cloud/expert.js');
 //var resume_handler = require('cloud/resume.js');
 
+var User = require('cloud/models/resutextUser');
+
 
 // Mocha test
 
-var message = require('cloud/message.js');
 
 Parse.Cloud.define("get_message", function(request, response) {
   message.getMessage(request, response);
@@ -28,14 +29,8 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 
     request.params.From = phone_handler.filterPhone(request.params.From);
 
-    var findUser = user_handler.findUserWithPhone(request.params.From);
-    findUser.then(function(user) {
-
-      if (!user || user == null || user.length < 1) {
-        response.error("Could not find user");
-        return;
-      }
-
+    console.log(request.params);
+    User.getByAttribute('phone', request.params.From).then(function(user) {
       var sms = phone_handler.receiveSMS(request.params.From, request.params.Body, response);
       if (sms) console.log("Received: " + sms);
       else console.log("Received: " + "Invalid SMS");
@@ -45,13 +40,17 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
       else console.log("Got: " + "Invalid Actions");
 
       var result = performActions(actions);
+      console.log('response');
       response.success("Successfully handled user sms");
-
-    }, function(error) {
-      response.error("Could not find user");
+    },
+    function(error){
+      console.log('response');
+      response.error("CANNOT FIND USER");
     });
+
   }
   else {
+      console.log('response');
     console.log("Some problem occured");
     response.error("SMS received in a weird way, phone was invalid");
   }
@@ -65,6 +64,7 @@ Parse.Cloud.define("incomingSMS", function(request, response) {
 function performActions(actions) {
 
   actions.forEach(function(action) {
+    console.log(action);
     action.object.send();
   });
 

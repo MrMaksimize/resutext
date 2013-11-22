@@ -81,6 +81,19 @@ var User = Parse.User.extend(
         }
       });
     },
+
+    getByAttribute: function(attributeName, attributeValue) {
+      console.log(' get by attribute');
+      var userQuery = new Parse.Query(User);
+      userQuery.equalTo(attributeName, attributeValue);
+      return userQuery.find().then(function(results){
+        if (results.length > 0) {
+          var userFound = results[0];
+          return Parse.Promise.as(userFound);
+        }
+        return Parse.Promise.as(null);
+      });
+    }
   }
 );
 

@@ -26,7 +26,7 @@ Uploader = Backbone.View.extend({
       var parseFile = this.parseFile;
       parseFile.save().then(function(){
         console.log('file save');
-        $.post("/update-settings", {
+        $.post("/user/update-settings", {
           file: {
             "__type": "File",
             "url": parseFile.url(),
