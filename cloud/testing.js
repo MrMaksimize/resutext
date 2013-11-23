@@ -6,7 +6,7 @@ var global = require('cloud/globals.js');
 var phone_handler = require('cloud/phone.js');
 var user_handler = require('cloud/user_handler.js');
 var expert_handler = require('cloud/expert.js');
-var resume_handler = require('cloud/resume.js');
+//var resume_handler = require('cloud/resume.js');
 
 
 /**
@@ -14,14 +14,14 @@ var resume_handler = require('cloud/resume.js');
  */
 Parse.Cloud.define("sms_test", function(request, response) {
   console.log("---");
-  
+
   validMsgs = request.params.validMsgs;
   invalidMsgs = request.params.invalidMsgs;
   from = request.params.from;
-  
+
   from = typeof from !== 'undefined' ? from : "+13128602305";
   var to = global.TWILIO_DATA().number;
-  
+
   for (var msg in validMsgs) {
     var sms = phone_handler.makeSMS(from, to, validMsgs[msg]);
     //console.log(sms);
@@ -32,7 +32,7 @@ Parse.Cloud.define("sms_test", function(request, response) {
     //console.log(sms);
     sms.send();
   }
-  
+
   response.success("Launched tests");
 });
 
@@ -46,7 +46,7 @@ function getTestUser() {
 
 Parse.Cloud.define("tiny_test", function(request, response) {
   console.log("tiny_test");
-  
+
   Parse.Cloud.httpRequest({
     url: 'http://tiny.cc/',
     params: {
@@ -78,13 +78,13 @@ Parse.Cloud.define("tiny_test", function(request, response) {
 
 Parse.Cloud.define("uploadResume_test", function(request, response) {
   console.log("uploadResume_test");
-  
+
   getTestUser().then(function(user) {
-  
+
     // Testing file
     var base64 = "V29ya2luZyBhdCBQYXJzZSBpcyBncmVhdCE=";
     var parseFile = new Parse.File("myfile.txt", { base64: base64 });
-    
+
     return parseFile.save().then(function() {
         resume_handler.saveResumeObjectTest(parseFile, user).then(function() {
         response.success("Saved resume");
@@ -113,7 +113,7 @@ Parse.Cloud.define("sendResume_test", function(request, response) {
     function(error) {
       response.error("Could not get the resume");
     });
-    
+
   },
   function(error) {
     response.error("Could not find user");

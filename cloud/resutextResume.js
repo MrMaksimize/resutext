@@ -39,37 +39,23 @@ exports.getTinyURL = function($parseFile) {
 exports.saveResumeObjectTest = function(resumeFile, user) {
   return saveResumeObject(resumeFile, user[0]);
 }
-function saveResumeObject(resumeFile, user) {
+
+exports.saveResumeObject = function(resumeFile, user) {
   var resumeObj = new Parse.Object("Resume");
   resumeObj.set("resume", resumeFile);
   resumeObj.set("user", user);
+  console.log('saving');
   return resumeObj.save();
 }
-exports.uploadResumeForUser = function(user) {
+/*exports.uploadResumeForUser = function(user) {
+  //var NO_SAVE = global.ERROR_MESSAGES().could_not_save;
 
-  var NO_SAVE = global.ERROR_MESSAGES().could_not_save;  
-
-  /*
-   * This is what the code should look like to
-   * grab a file from express form
-   */
-  var fileUploadControl = $("#resumeFile")[0];
-  if (fileUploadControl.files.length < 1) {
-    return Parse.Promise.error("Invalid file");
-  }
-  
-  var file = fileUploadControl.files[0];
-  var parseFile = new Parse.File(fileName, file);
-  
-  return parseFile.save().then(function() {
-    return saveResumeObject(parseFile, user[0]);
-  });
-}
+}*/
 
 exports.retrieveResumeForUser = function(user) {
-  
+
   var NO_RESUME_MSG = global.ERROR_MESSAGES().no_resume_found;
-  
+
   var query = new Parse.Query("Resume");
   query.equalTo("user", user[0]);
 

@@ -5,7 +5,7 @@ var global = require('cloud/globals.js');
 // -- Other Experts -- //
 var phone_handler = require('cloud/phone.js');
 var email_handler = require('cloud/email.js');
-var resume_handler = require('cloud/resume.js');
+//var resume_handler = require('cloud/resume.js');
 var user_handler = require('cloud/user_handler.js');
 
 /*
@@ -21,14 +21,14 @@ var user_handler = require('cloud/user_handler.js');
  * }
  */
 exports.parseSMS = function(smsMsg, sender) {
-  
+
   var actions = new Array();
 
   // -- Actual Parsing -- //
   smsMsg = smsMsg.toLowerCase();
-  
+
   var from = global.TWILIO_DATA().number;
-  
+
   // Sending Resumes to someone via Email
   if (smsMsg.search("@") > -1) {
     var emails = email_handler.findEmailAddresses(smsMsg);
@@ -40,38 +40,38 @@ exports.parseSMS = function(smsMsg, sender) {
       });
     }
   }
-  
+
   /*
   // Sending Resumes to someone via Email
   if (smsMsg.search("@") > -1) {
     var emails = email_handler.findEmailAddresses(smsMsg);
 
     if (emails && emails.length > 0) {
-      
+
       var findUser = user_handler.findUserWithPhone(sender);
 
       findUser.then(function(user) {
-    
+
 	resume_handler.retrieveResumeForUser(user).then(function(resume) {
 	  console.log("Resume: ");
 	  console.log(resume);
-  
+
 	  // + resume[0]["resume"]["url"]
 	  emails.forEach(function(email) {
 	    var email = email_handler.makeEMAIL("noreply@resutext.com", email, "Resutext", "Thanks brah, here's the resume!");
 	    actions.push( {type: "email", object: email} );
 	  });
-      
+
 	},
 	function(error) {
 	  response.error("Could not get the resume");
 	});
-	
+
       });
     }
   }
   */
-  
+
   // Sending Resumes to somone via SMS
   if (smsMsg.search("resume") > -1) {
     var phones = phone_handler.findPhoneNumbers(smsMsg);
@@ -83,15 +83,15 @@ exports.parseSMS = function(smsMsg, sender) {
       });
     }
   }
-  
+
   // Nothing to do, must be an error
   if (actions.length < 1) {
-    
+
     var sms = phone_handler.makeSMS(from, sender, "Sry man, I didn't get that ):");
     actions.push( {type: "sms", object: sms} );
-  } 
+  }
   // Otherwise, send a confirmation sms
-  else {    
+  else {
     var sendSMS = false;
     var sendEMAIL = false;
 
@@ -107,7 +107,7 @@ exports.parseSMS = function(smsMsg, sender) {
 
     actions.push( {type: "sms", object: sms} );
   }
-  
+
   // Send it all!
   return actions;
 }
