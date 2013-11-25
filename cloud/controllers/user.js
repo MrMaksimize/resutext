@@ -55,6 +55,7 @@ module.exports = function(){
     //console.log(req.body);
     //res.render('hello', { message: req.body.linkedin });
     //TODO refactor when user object is a bit more defined.
+    console.log(req.body);
     var user = User.current();
     user.save({
       "firstName": req.body.firstName,

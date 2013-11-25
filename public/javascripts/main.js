@@ -2,7 +2,6 @@ Uploader = Backbone.View.extend({
   events: {
     "submit": "formSubmit",
     "change input[type=file]": "upload",
-    "click .upload": "showFile",
   },
 
   initialize: function() {
@@ -18,29 +17,52 @@ Uploader = Backbone.View.extend({
   },
 
   formSubmit: function(e) {
-    console.log('formSubmit');
-
-    console.log(this.parseFile);
-
-    if (this.parseFile) {
+    var self = this;
+    // Disable inputs for op.
+    $('input').prop('disabled', true);
+    var postBody = {};
+    var values = this.getSimpleValues();
+    if (!this.parseFile) {
+      console.log('no parse file');
+      this.saveSimpleValues(values);
+    }
+    else {
       var parseFile = this.parseFile;
+      console.log(parseFile);
+      console.log('yes parse file');
       parseFile.save().then(function(){
-        console.log('file save');
-        $.post("/user/update-settings", {
-          file: {
-            "__type": "File",
-            "url": parseFile.url(),
-            "name": parseFile.name()
-          },
-        },
-        function (data) {
-            console.log('ok');
-        });
+        values.file = {
+          "__type": "File",
+          "url": parseFile.url(),
+          "name": parseFile.name()
+        };
+        self.saveSimpleValues(values);
       });
     }
-
     return false;
   },
+
+  getSimpleValues: function() {
+    var values = {};
+    $('input').each(function(index, element) {
+      var name = $(element).attr('name');
+      if (name != "resumeUploadFile") {
+        values[name] = $(element).val();
+      }
+    });
+    console.log(values);
+    return values;
+  },
+
+  saveSimpleValues: function(valuesToSave) {
+    var values = valuesToSave;
+    $.post("/user/update-settings", values, function(data){
+        console.log(data);
+
+        $('input').prop('disabled', false);
+    });
+  },
+
 
   debug: function(e) {
     console.log('debug');
@@ -60,23 +82,6 @@ Uploader = Backbone.View.extend({
       console.log(parseFile);
       this.parseFile = parseFile;
 
-      // First, we save the file using the javascript sdk
-     /* parseFile.save().then(function(parseFile) {
-        console.log(parseFile);
-        console.log(this);
-        // Then, we post to our custom endpoint which will do the post
-        // processing necessary for the image page
-        $.post("/upload", {
-          file: {
-            "__type": "file",
-            "url": parsefile.url(),
-            "name": parsefile.name()
-          },
-          title: self.$("[name=title]").val()
-        }, function(data) {
-          window.location.href = "/i/" + data.id;
-        });
-      });*/
     } else {
       alert("Please select a file");
     }
@@ -87,13 +92,3 @@ Uploader = Backbone.View.extend({
 
 
 
-
-/*$(function() {
-  // Make all of special links magically post the form
-  // when it has a particular data-action associated
-  $("button[type='submit']").click(function(e) {
-    var el = $(e.target);
-    el.closest("form").submit();
-    return false;
-  });
-});*/
