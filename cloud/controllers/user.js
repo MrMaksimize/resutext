@@ -14,6 +14,28 @@ module.exports = function(){
     res.redirect('/');
   });
 
+  app.get('/settings', function(req, res) {
+
+    if (!Parse.User.current()) {
+      res.render('hello', { message: 'Welcome to ResuText!' });
+    }
+    else {
+      var user = User.current();
+      Resume.getFromUser(user).then(function(resume){
+        console.log(resume);
+        res.render('settings', {
+          firstName: user.get('firstName') || '',
+          lastName: user.get('lastName') || '',
+          headline: user.get('headline') || '',
+          linkedin: user.get('linkedin') || '',
+          resumeFile: resume.get('resumeFile').url() || '',
+        });
+      });
+    }
+  });
+
+
+
   app.get('/auth', function (req, res) {
     linkedInClient.initialize({
         APIKey: 'v0wh3ponihe9',

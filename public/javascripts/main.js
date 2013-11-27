@@ -12,15 +12,26 @@ Uploader = Backbone.View.extend({
 
   showFile: function(e) {
     console.log('show file');
-    this.fileUploadControl.click();
-    return false;
   },
+
+  setWorkingState: function(state) {
+    if (state == 'working') {
+      $('input').prop('disabled', true);
+      this.parseFileUrl = $('.resume-file-preview img').attr('src');
+      $('.resume-file-preview img').attr('src', '/images/spiffySpinner.gif');
+    }
+    else {
+      $('input').prop('disabled', false);
+      $('.resume-file-preview img').attr('src', this.parseFileUrl);
+    }
+  },
+
 
   formSubmit: function(e) {
     var self = this;
     // Disable inputs for op.
-    $('input').prop('disabled', true);
     var postBody = {};
+    this.setWorkingState('working');
     var values = this.getSimpleValues();
     if (!this.parseFile) {
       console.log('no parse file');
@@ -31,6 +42,8 @@ Uploader = Backbone.View.extend({
       console.log(parseFile);
       console.log('yes parse file');
       parseFile.save().then(function(){
+        self.parseFileUrl = parseFile.url();
+        self.parseFileName = parseFile.name();
         values.file = {
           "__type": "File",
           "url": parseFile.url(),
@@ -55,11 +68,10 @@ Uploader = Backbone.View.extend({
   },
 
   saveSimpleValues: function(valuesToSave) {
+    var self = this;
     var values = valuesToSave;
     $.post("/user/update-settings", values, function(data){
-        console.log(data);
-
-        $('input').prop('disabled', false);
+      self.setWorkingState('done');
     });
   },
 
@@ -78,9 +90,8 @@ Uploader = Backbone.View.extend({
       var file = this.fileUploadControl.files[0];
       var name = "image.jpg";
       var parseFile = new Parse.File(name, file);
-      console.log(this);
-      console.log(parseFile);
       this.parseFile = parseFile;
+      this.formSubmit();
 
     } else {
       alert("Please select a file");
